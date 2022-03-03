@@ -9,7 +9,7 @@ the gamemode isn't sandbox.
 You'll find a folder called "content to be put in the server's folder". Everything inside must be copy/cut-pasted into the server's main directory.
 The directory is garrysmod/garrysmod (the folder where all the models, materials sound and other folders are)
 
-Serverside console variables:
+# Serverside console variables:
 ta_respawntime_rebel - (default - 5) time it takes for a rebel to respawn
 ta_respawntime_combine - (default - 5) time it takes for a combine to respawn
 ta_rounds - (default - 4) amount of rounds per map, can support as much rounds as you want (if you want to, you can set it to 9001 rounds)
@@ -20,7 +20,7 @@ ta_timelimit_vip - (default - 5) time in minutes until a new round in the "Searc
 ta_hardcore - (default - 0) disables respawn, last team member to die ends the round
 ta_painsounds_derpmode - (default - 0) turn it on, and see for yourself ;)
 
-Currently supported maps:
+# Currently supported maps:
 
 de_nuke - Communications Sabotage
 cs_compound - Communications Sabotage
