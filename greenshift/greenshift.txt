@@ -1,0 +1,104 @@
+"greenshift"
+{
+	"name"		"Green Shift"
+        "maps"				""
+	"author_name"	"(made green shift by Spy / Kogitsune) Fix by rtkz_wasa19741"
+	"author_email"		""
+	"author_url"		""
+	"menusystem"		"1"
+	"settings"
+	{
+                1
+		{
+			"name"		"ta_respawntime_combine"
+			"text"		"ta_respawntime_combine"
+			"help"		"Time it takes for a combine to respawn."
+			"type"		"Numeric"
+			"default"	"5"
+			"dontcreate"	"1"
+		}
+
+		2
+		{
+			"name"		"ta_respawntime_rebel"
+			"text"		"ta_respawntime_rebel"
+			"help"		"Time it takes for a rebel to respawn."
+			"type"		"Numeric"
+			"default"	"5"
+			"dontcreate"	"1"
+		}
+
+		3
+		{
+			"name"		"ta_rounds"
+			"text"		"ta_rounds"
+			"help"		"Amount of rounds per map, can support as much rounds as you want"
+			"type"		"Numeric"
+			"default"	"4"
+			"dontcreate"	"1"
+		}
+
+		4
+		{
+			"name"		"ta_timelimit_tdm"
+			"text"		"ta_timelimit_tdm"
+			"help"		"Time in minutes until a new round in the 'Team Deathmatch' gametype starts"
+			"type"		"Numeric"
+			"default"	"15"
+			"dontcreate"	"1"
+		}
+
+		5
+		{
+			"name"		"ta_timelimit_comsab"
+			"text"		"ta_timelimit_comsab"
+			"help"		"Time in minutes until a new round in the 'Communications Sabotage' gametype starts"
+			"type"		"Numeric"
+			"default"	"10"
+			"dontcreate"	"1"
+		}
+                6
+		{
+			"name"		"ta_timelimit_supplydepot"
+			"text"		"ta_timelimit_supplydepot"
+			"help"		"Time in minutes until a new round in the 'Supply Depot' gametype starts"
+			"type"		"Numeric"
+			"default"	"5"
+			"dontcreate"	"1"
+		}
+                7
+		{
+			"name"		"ta_timelimit_comsab"
+			"text"		"ta_timelimit_comsab"
+			"help"		"Time in minutes until a new round in the 'Communications Sabotage' gametype starts"
+			"type"		"Numeric"
+			"default"	"10"
+			"dontcreate"	"1"
+		}
+                8
+		{
+			"name"		"ta_timelimit_vip"
+			"text"		"ta_timelimit_vip"
+			"help"		"Time in minutes until a new round in the 'Search and Eliminate' gametype starts"
+			"type"		"Numeric"
+			"default"	"5"
+			"dontcreate"	"1"
+		}
+		9
+		{
+			"name"		"ta_hardcore"
+			"text"		"ta_hardcore"
+			"help"		"Disables respawn, last team member to die ends the round"
+			"type"		"Numeric"
+			"default"	"0"
+		}
+		10
+		{
+			"name"		""
+			"text"		"README PLEASE (HOVER ME)"
+			"help"		"Currently supported maps : de_nuke - Communications Sabotage / cs_compound - Communications Sabotage / de_prodigy - Communications Sabotage / de_nightfever - Communications Sabotage / de_port - Supply Depot / de_inferno - Supply Depot / de_cbble - Search and Eliminate / Every other map that's not supported, is automatically tagged as 'Team Deathmatch'"
+			"type"		"Text"
+			"default"	""
+		}
+	}
+}

@@ -1,0 +1,99 @@
+1.08:
+	+ In addition to the heartbeat sound, your screen will also flash in red with motion blur around the edges of your screen to indicate that you're low on health
+	+ VIPs in the VIP Escort gametype now get an amount of lives specified by the server. Default are 3 lives.
+	+ de_tides now supports the VIP escort gametype
+	+ Kill assists now give 25 EXP
+	+ From now on, getting EXP will also tell you what for tou received the EXP
+	/\ Fixed the VIP escort gametype this time 100%. I promise.
+	/\ Added in even more checks to prevent spectators spawning with weapons/spawning at all and being able to run around
+	/\ Slightly increased the health amount required for the low health indication to come into effect
+	/\ More improvements to arm transistion with attachments like M203, etc. when reloading, etc.
+	/\ Fixed being able to grab onto physics-affected objects
+	/\ Fixed being able to wall run on physics-affected objects
+	/\ Fixed dead combine near the escort node not allowing rebel VIPs win the round
+	/\ Fixed combine not getting experience for killing the VIP and winning the round in the VIP escort gametype
+	/\ Fixed VIP leaving the server not automatically choosing another one
+	/\ Updated the readme for server owners, read it please
+
+1.07:
+	+ Added in 6 more Unlockables:
+		* Unfortunately, the levels, skill points, experience and unlocked unlockables will be wiped.
+		
+	+ Added in a Hardcore mode. You do not respawn if this is enabled, and the last team member to die ends the round
+		
+	+ Added in more tips, for:
+		* how to heal yourself
+		* how to perform a class-based action (these 2 are for blind people who can't read)
+		
+	+ The Automatic Health Dispenser now adds 25 EXP points per 20 health points healed
+	
+	/\ Re-made the Damage over Distance feature:
+		* It now has dynamic damage scaling
+		* Has a realistic calculation of effective range for every weapon
+		* SMGs and pistols now do much more damage on close range, but do much less damage over distance (up to 50% less damage)
+		
+	+ Added in a simple spectation system
+	+ Added in M203 support for the M4A1
+	+ Added in Vert grip support for the M14
+	/\ Balanced the M249: higher spread, less damage, less spread from hip-fire, mag size decreased to 100 rounds
+	/\ The "Human Tank" Personal Attribute now adds 65 armor points, instead of 75% percent
+	/\ The "Human Tank" Personal Attribute now also decreases maximum wall-runs by 1
+	/\ The "Armored Knight" Unlockable now adds 15 armor points, instead of 15% percent
+	/\ Slight improvements to transistion of arm bones when reloading/etc. with attachments like vert grips, C-Mags, etc.
+	/\ Fixed a small bug with unlockables that nobody noticed
+	/\ Fixed weapons' viewmodel animation speed not being affected by various Personal Attributes
+	/\ Heartbeat sound when you are low on health is now louder
+	/\ Fixed various Lua errors
+	/\ Updated the readme for server owners, read it please
+
+1.06:
+	+ Added in 10 more Unlockables
+	+ Added in 2 more Personal Attributes
+	/\ Re-made unlockables:
+		* Instead of being able to unlock everything, there is now a level system
+		* You get experience for: killing enemies, giving team mates medkits, giving team mates ammo, repairing team mates' armor, completing objectives
+		* After leveling up, you get one skill point to spend on various skills
+		* The only way to re-align them, is to press the "Reset All" button and re-start from level 0
+		* Maximum amount of levels is pre-defined, but the calculation for amount of levels is: amount of unlockables divided by 2 (i.e. 20 unlockables = 10 levels)
+	/\ Shotguns now reload faster with the "Agile Hands" Personal Attribute
+	/\ Fixed a few bugs involving accuracy increasing/decreasing personal attributes/unlockables
+	/\ Jump height now has a fixed value
+	/\ Added more checks to prevent spectators spawning with guns
+	/\ A small tweak to weapon animation switches
+	/\ Crosshair is now smoother
+	/\ Updated the readme for server owners, read it please
+
+1.05:
+	+ Added in Unlockables.
+	+ Added in Personal Attributes - these are perks which have improve one thing, while worsening another thing. At the moment there are 6. You may pick one.
+	+ Added in tips, for:
+		* planting a charge
+		* how to wall-run
+		* how to pull yourself up
+		* how to shimmy
+		* tips can be turned off in the F1 menu
+	
+	+ de_piranesi now supports the VIP escort gametype
+	/\ Fixed every single Rebel being the VIP in the VIP escort gametype, rendering Rebels impossible to win as soon as someone died
+	/\ The Rebels are now not able to win the match in the VIP escort gametype by approaching the escort node, even though there are enemies around
+	/\ Fixed a Lua error if there were no players in the Rebel team in the VIP escort gametype
+	/\ Fixed various Lua errors
+	/\ Fixed a bug where, if you died while using a medkit, you would still heal yourself, even though you were dead
+	/\ Various other improvements and bug fixes to the VIP escort gametype
+	/\ Updated the readme for server owners, read it please.
+
+1.04:
+	/\ Fixed crosshair not working for some people
+	/\ Updated the readme for server owners, read it please.
+
+1.03:
+	/\ Fixed FN FAL not working with the ACOG scope
+	/\ Fixed M203 showing up on M16A4 but not being able to fire out a grenade with it
+	/\ Fixed various weapons not liking the M203 while reloading
+
+1.02:
+	/\ Fixed hands ignoring weapon attachments and clipping through them
+	/\ Updated the readme for server owners, read it please.
+
+1.01:
+	+ Added particles to precache list. This is a very important thing, because it most likely fixes a spam of big red crosses.
