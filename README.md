@@ -29,11 +29,18 @@ ta_hardcore - (default - 0) disables respawn, last team member to die ends the r
 # Currently supported maps:
 
 de_nuke - Communications Sabotage
+
 cs_compound - Communications Sabotage
+
 de_prodigy - Communications Sabotage
+
 de_nightfever - Communications Sabotage
+
 de_port - Supply Depot
+
 de_inferno - Supply Depot
+
 de_cbble - Search and Eliminate
+
 
 Every other map that's not supported, is automatically tagged as "Team Deathmatch"
