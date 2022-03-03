@@ -124,7 +124,7 @@ function SWEP:PrimaryAttack()
 		if SERVER then
 			local throwable = ents.Create("ta_activated_ammokit")
 			throwable:SetPos(self.Owner:EyePos() + self.Owner:GetAimVector() * 16 + self.Owner:GetRight() * 2 + self.Owner:GetUp() * -3)
-			throwable:SetAngless(self.Owner:EyeAngles() - Angle(45, 0, 0))
+			throwable:SetAngles(self.Owner:EyeAngles() - Angle(45, 0, 0))
 			throwable:SetOwner(self.Owner)
 			throwable:Spawn()
 			

@@ -91,7 +91,7 @@ function SWEP:Think()
 						
 						local throwable = ents.Create("ta_incendiary")
 						throwable:SetPos(self.Owner:EyePos() + self.Owner:GetAimVector() * 16 + self.Owner:GetRight() * 5 + self.Owner:GetUp() * -2)
-						throwable:SetAngless(self.Owner:EyeAngles())
+						throwable:SetAngles(self.Owner:EyeAngles())
 						throwable:SetOwner(self.Owner)
 						throwable:Spawn()
 						

@@ -19,11 +19,11 @@ SWEP.Purpose		= ""
 
 SWEP.ViewModelFOV = 70
 SWEP.ViewModelFlip = false
-SWEP.ViewModel = "models/weapons/v_c4.mdl"
+SWEP.ViewModel = "models/weapons/cstrike/c_c4.mdl"
 SWEP.WorldModel = "models/weapons/w_c4.mdl"
 SWEP.ShowViewModel = true
 SWEP.ShowWorldModel = true
-
+SWEP.UseHands = true
 SWEP.Spawnable			= false
 SWEP.AdminSpawnable		= false
 
@@ -48,7 +48,7 @@ SWEP.Secondary.ClipSize		= -1
 SWEP.Secondary.DefaultClip	= -1
 SWEP.Secondary.Automatic   	= false
 SWEP.Secondary.Ammo         = "none"
-
+SWEP.HoldType = "pistol"
 SWEP.MaxAmmo = 1
 SWEP.MotionSensorMode = 0 
 SWEP.PlantSpeedMul = 1
@@ -108,10 +108,10 @@ function SWEP:Think()
 			local trace = util.TraceLine(tracedata)
 			
 			Bomb:SetPos(trace.HitPos) -- always keep the position
-			Bomb:SetColor(120, 255, 0, BombAlpha) -- green'ish
+			Bomb:SetColor(Color(120, 255, 0, BombAlpha)) -- green'ish
 			
 			if trace.Hit and trace.HitNormal.z == 0 then
-				Bomb:SetAngless(trace.HitNormal:Angle() + Angle(-90, 90, 90))
+				Bomb:SetAngles(trace.HitNormal:Angle() + Angle(-90, 90, 90))
 				BombAlpha = Lerp(0.1, BombAlpha, 150)
 			else
 				BombAlpha = Lerp(0.1, BombAlpha, 0)
@@ -161,7 +161,7 @@ function SWEP:PrimaryAttack()
 				
 					local charge = ents.Create("ta_activated_charge")
 					charge:SetPos(trace.HitPos)
-					charge:SetAngless(trace.HitNormal:Angle() + Angle(-90, 90, 90))
+					charge:SetAngles(trace.HitNormal:Angle() + Angle(-90, 90, 90))
 					charge.MotionSensitive = self.Weapon.MotionSensor
 					charge:Spawn()
 					charge.EntOwner = self.Owner

@@ -16,7 +16,7 @@ SWEP.AdminSpawnable		= true
 
 SWEP.ViewModel = "models/weapons/cstrike/c_knife_t.mdl"
 SWEP.WorldModel = "models/weapons/w_knife_t.mdl"
-
+SWEP.UseHands = true
 SWEP.SwingDelay = 0.7
 
 SWEP.DamageToEnts1 = 15

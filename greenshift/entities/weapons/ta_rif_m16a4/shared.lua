@@ -345,7 +345,7 @@ function SWEP:PrimaryAttack()
 			local prop = ents.Create(self.Weapon.GrenadeType)
 			prop:SetPos(self.Owner:EyePos() + self.Owner:GetAimVector() * 24 + self.Owner:GetRight() * 4 + self.Owner:GetUp() * -6)
 			prop:SetOwner(self.Owner)
-			prop:SetAngless(self.Owner:EyeAngles())
+			prop:SetAngles(self.Owner:EyeAngles())
 			prop.BlastRadius = self.Weapon.BlastRadius
 			prop.BlastDamage = self.Weapon.BlastDamage
 			prop:Spawn()
