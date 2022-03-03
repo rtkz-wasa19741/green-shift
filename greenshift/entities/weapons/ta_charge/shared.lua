@@ -111,7 +111,7 @@ function SWEP:Think()
 			Bomb:SetColor(120, 255, 0, BombAlpha) -- green'ish
 			
 			if trace.Hit and trace.HitNormal.z == 0 then
-				Bomb:SetAngles(trace.HitNormal:Angle() + Angle(-90, 90, 90))
+				Bomb:SetAngless(trace.HitNormal:Angle() + Angle(-90, 90, 90))
 				BombAlpha = Lerp(0.1, BombAlpha, 150)
 			else
 				BombAlpha = Lerp(0.1, BombAlpha, 0)
@@ -161,7 +161,7 @@ function SWEP:PrimaryAttack()
 				
 					local charge = ents.Create("ta_activated_charge")
 					charge:SetPos(trace.HitPos)
-					charge:SetAngles(trace.HitNormal:Angle() + Angle(-90, 90, 90))
+					charge:SetAngless(trace.HitNormal:Angle() + Angle(-90, 90, 90))
 					charge.MotionSensitive = self.Weapon.MotionSensor
 					charge:Spawn()
 					charge.EntOwner = self.Owner
@@ -242,7 +242,7 @@ if CLIENT then
 		local ply = LocalPlayer()
 		local wep = ply:GetActiveWeapon()
 	
-		if ValidEntity(ply) and ValidEntity(wep) then
+		if IsValid(ply) and IsValid(wep) then
 			wep.BombType = um:ReadShort()
 		end
 	end

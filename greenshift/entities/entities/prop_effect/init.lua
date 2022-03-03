@@ -10,7 +10,7 @@ function ENT:Initialize()
 
 	self.AttachedEntity = ents.Create( "prop_dynamic" )
 		self.AttachedEntity:SetModel( self:GetModel() )
-		self.AttachedEntity:SetAngles( self:GetAngles() )
+		self.AttachedEntity:SetAngless( self:GetAngles() )
 		self.AttachedEntity:SetPos( self:GetPos() )
 		self.AttachedEntity:SetSkin( self:GetSkin() )
 	self.AttachedEntity:Spawn()

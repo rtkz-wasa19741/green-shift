@@ -14,7 +14,7 @@ SWEP.HoldType = "knife"
 SWEP.Spawnable			= true
 SWEP.AdminSpawnable		= true
 
-SWEP.ViewModel = "models/weapons/v_knife_t.mdl"
+SWEP.ViewModel = "models/weapons/cstrike/c_knife_t.mdl"
 SWEP.WorldModel = "models/weapons/w_knife_t.mdl"
 
 SWEP.SwingDelay = 0.7

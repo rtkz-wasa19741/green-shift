@@ -17,10 +17,6 @@ if ( CLIENT ) then
 	SWEP.CSMuzzleFlashes	= true
 	SWEP.PitchMod = 1
 	SWEP.RollMod = 1
-	// This is the font that's used to draw the death icons
-	surface.CreateFont( "csd", ScreenScale( 30 ), 500, true, true, "CSKillIcons" )
-	surface.CreateFont( "csd", ScreenScale( 60 ), 500, true, true, "CSSelectIcons" )
-
 end
 
 SWEP.Author			= "LEETNOOB"
@@ -281,11 +277,11 @@ function SWEP:PrimaryAttack()
 			end
 		end
 		
-		if not SinglePlayer() then
+		if not game.SinglePlayer() then
 			local ef = EffectData()
 			ef:SetOrigin(self.Owner:GetShootPos())
 			ef:SetEntity(self.Weapon)
-			ef:SetAngle(self.Owner:GetAngles())
+			ef:SetAngles(self.Owner:GetAngles())
 			//ef.Silenced = self.Weapon.IsSilenced
 			util.Effect("ta_ef_muzzle", ef)
 		end

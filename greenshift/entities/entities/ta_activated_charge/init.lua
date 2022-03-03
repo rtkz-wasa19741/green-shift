@@ -82,7 +82,7 @@ function ENT:MakeDud()
 	self.Entity:GetPhysicsObject():Wake()
 	
 	timer.Simple(5, function()
-		if ValidEntity(self.Entity) then
+		if IsValid(self.Entity) then
 			SafeRemoveEntity(self.Entity)
 		end
 	end)

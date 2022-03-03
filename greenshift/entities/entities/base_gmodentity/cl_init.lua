@@ -1,12 +1,8 @@
 
 include('shared.lua')
 
-surface.CreateFont( "coolvetica", 64, 500, true, false, "SandboxLabel" )
-
 ENT.LabelColor = Color( 255, 255, 255, 255 )
 
-
-// Default Draw Routine..
 function ENT:Draw( bDontDrawModel )
 
 	if ( LocalPlayer():GetEyeTrace().Entity == self.Entity && 
@@ -61,12 +57,12 @@ end
 
 function ENT:DrawFlatLabel( size )
 
-	local TargetAngle 	= self:GetAngles()
-	local TargetPos 	= self:GetPos() - TargetAngle:Forward() * 16
+	local TarGetAngles 	= self:GetAngles()
+	local TargetPos 	= self:GetPos() - TarGetAngles:Forward() * 16
 	
-	TargetAngle:RotateAroundAxis( TargetAngle:Up(), 90 )
+	TarGetAngles:RotateAroundAxis( TarGetAngles:Up(), 90 )
 	
-	cam.Start3D2D( TargetPos, TargetAngle, 0.05 * size * self.LabelScale )
+	cam.Start3D2D( TargetPos, TarGetAngles, 0.05 * size * self.LabelScale )
 	
 		local Shadow = Color( 0, 0, 0, self.LabelAlpha * 255 )
 		draw.DrawText( self.LabelText, self.LabelFont,  3,  3, Shadow, TEXT_ALIGN_CENTER )

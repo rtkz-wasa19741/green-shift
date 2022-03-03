@@ -15,11 +15,14 @@ List of people that helped me out and provided various Lua help:
 Kogitsune
 
 */
-
+if game.SinglePlayer() then
+    erorr("use multiplayer not singeplayer")
+    RunConsoleCommand("disconnect")
+end
 umsg.PoolString("RSP")
 umsg.PoolString("RPTINFO")
 umsg.PoolString("GAY")
-
+util.AddNetworkString("ACT")
 local WallRunSound = {
 	Sound("player/footsteps/concrete1.wav"),
 	Sound("player/footsteps/concrete2.wav"),
@@ -742,7 +745,7 @@ function GM:Tick()
 						
 							if (getactiveweapon.LastMag == 0 and getactiveweapon.ShouldBolt == true) or (getactiveweapon.LastMag != 0 and getactiveweapon.ShouldBolt == false) then
 						        local name = v:Nick()
-								if timer.IsTimer("StartCustomReloadTimer" .. name) then
+								if timer.Exists("StartCustomReloadTimer" .. name) and timer.IsTimer("StartCustomReloadTimer" .. name) then
 									timer.Destroy("StartCustomReloadTimer" .. name)
 									timer.Destroy("StartCustomReloadTimer2" .. name)
 										
@@ -1406,10 +1409,10 @@ function GM:KeyRelease(ply, key)
 		if wep != NULL and wep.IsCustomWeapon then
 			if ply:GetVelocity():Length() >= ply:GetWalkSpeed() * 0.8 then
 				if key == IN_SPEED then
-			
-					if timer.IsTimer("StartCustomReloadTimer" .. ply:Nick()) then
-						timer.Destroy("StartCustomReloadTimer" .. ply:Nick())
-						timer.Destroy("StartCustomReloadTimer2" .. ply:Nick())
+			        local name = ply:Nick()
+					if timer.Exists("StartCustomReloadTimer" .. name) and timer.IsTimer("StartCustomReloadTimer" .. name) then
+						timer.Destroy("StartCustomReloadTimer" .. name)
+						timer.Destroy("StartCustomReloadTimer2" .. name)
 					end
 								
 					wep:SendWeaponAnim(wep.IdleAnim or ACT_VM_IDLE)
@@ -2784,13 +2787,11 @@ local function TA_DoAction(ply)
 				ply:EmitSound("items/ammo_pickup.wav", 60, 100)
 				ply.ArmorRegenDelay = CurTime() + 1
 				wep:SetDTInt(3, 0)
-				
-				umsg.Start("ACT", ply)
-					umsg.Entity(0)
-					umsg.Entity(0)
-					umsg.Short(3)
-				umsg.End()
-
+				net.Start("ACT")
+				    net.WriteEntity(0)
+					net.WriteEntity(0)
+					net.WriteData(3)
+				net.Send(ply)
 			end)
 		end
 	elseif ply.Class == "Recon" then

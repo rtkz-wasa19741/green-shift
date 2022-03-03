@@ -41,8 +41,6 @@ if ( CLIENT ) then
 	SWEP.IsCustomWeapon = true
 	SWEP.LastActivity = "asd"
 	// This is the font that's used to draw the death icons
-	surface.CreateFont( "csd", ScreenScale( 30 ), 500, true, true, "CSKillIcons" )
-	surface.CreateFont( "csd", ScreenScale( 60 ), 500, true, true, "CSSelectIcons" )
 	
 	language.Add("striderminigun_ammo", "7.62x39MM Ammo")
 	language.Add("combinecannon_ammo", ".50AE Ammo")
@@ -206,7 +204,7 @@ function SWEP:Holster(weapon)
 	if SERVER then
 		self.Owner:SetFOV(0, 0.3)
 	
-		if SinglePlayer() then
+		if game.SinglePlayer() then
 			self.Owner:SendLua("timer.Destroy('CLATT' .. LocalPlayer():Nick())")
 			return true
 		end
@@ -307,7 +305,7 @@ function SWEP:StartCustomReload(anim, animspeed)
 			
 	local time = (self.Owner:GetViewModel():SequenceDuration() / self.Weapon.ReloadSpeed) - ((self.Owner:GetViewModel():SequenceDuration() / self.Weapon.ReloadSpeed) * self.Weapon.IncAmmoPerc)
 	timer.Create("StartCustomReloadTimer" .. self.Owner:Nick(), time, 1, function()
-		if not ValidEntity(self.Weapon) or not ValidEntity(self.Owner) or self.Weapon:GetClass() != self.Owner:GetActiveWeapon():GetClass() then
+		if not IsValid(self.Weapon) or not IsValid(self.Owner) or self.Weapon:GetClass() != self.Owner:GetActiveWeapon():GetClass() then
 			return
 		end
 			
@@ -373,7 +371,7 @@ function SWEP:BoltWeaponry()
 	self.Owner:GetViewModel():SetPlaybackRate(self.Weapon.ReloadSpeed)
 	
 	timer.Simple((self.Owner:GetViewModel():SequenceDuration() / self.Weapon.ReloadSpeed) - 0.2, function()
-		if not ValidEntity(self.Weapon) or not ValidEntity(self.Owner) or self.Weapon:GetClass() != self.Owner:GetActiveWeapon():GetClass() then
+		if not IsValid(self.Weapon) or not IsValid(self.Owner) or self.Weapon:GetClass() != self.Owner:GetActiveWeapon():GetClass() then
 			return
 		end
 		
@@ -492,7 +490,7 @@ function SWEP:Think()
 	if CLIENT then
 		self.Owner:GetViewModel().BuildBonePositions = function(self, numbon, numphysbon)
 		
-			if not ValidEntity(LocalPlayer():GetActiveWeapon()) then
+			if not IsValid(LocalPlayer():GetActiveWeapon()) then
 				return
 			end
 			
@@ -506,7 +504,7 @@ function SWEP:Think()
 				return
 			end
 			
-			if ValidEntity(wep) then
+			if IsValid(wep) then
 				if wep.MagBone then
 					if wep.VElements and wep.VElements["cmag"].color.a == 255 then 
 						local bone = vm:LookupBone(wep.MagBone)
@@ -722,7 +720,7 @@ function SWEP:Think()
 						end
 						
 						timer.Simple(TimeRel, function()
-							if not ValidEntity(wep) or wep:GetClass() != ply:GetActiveWeapon():GetClass() then
+							if not IsValid(wep) or wep:GetClass() != ply:GetActiveWeapon():GetClass() then
 								return
 							end
 							
@@ -730,7 +728,7 @@ function SWEP:Think()
 						end)
 					
 						timer.Simple(TimeIdle, function()
-							if not ValidEntity(wep) or wep:GetClass() != ply:GetActiveWeapon():GetClass() then
+							if not IsValid(wep) or wep:GetClass() != ply:GetActiveWeapon():GetClass() then
 								return
 							end
 							
@@ -784,7 +782,7 @@ function SWEP:PrimaryAttack()
 		return
 	end
 	
-	if CLIENT and not SinglePlayer() then
+	if CLIENT then
 		if self.Owner:KeyDown(IN_USE) then
 			if (self.Weapon.VElements and self.Weapon.VElements["grenadelauncher"] and self.Weapon.VElements["grenadelauncher"].color.a == 255) or self.Weapon:GetDTInt(3) == 8 then
 				return
@@ -808,7 +806,7 @@ function SWEP:PrimaryAttack()
 			local prop = ents.Create(self.Weapon.GrenadeType)
 			prop:SetPos(self.Owner:EyePos() + self.Owner:GetAimVector() * 24 + self.Owner:GetRight() * 4 + self.Owner:GetUp() * -6)
 			prop:SetOwner(self.Owner)
-			prop:SetAngles(self.Owner:EyeAngles())
+			prop:SetAngless(self.Owner:EyeAngles())
 			prop.BlastRadius = self.Weapon.BlastRadius
 			prop.BlastDamage = self.Weapon.BlastDamage
 			prop:Spawn()
@@ -901,14 +899,12 @@ function SWEP:PrimaryAttack()
 			self.Owner:SetDTInt(2, 0)
 		end
 		
-		if not SinglePlayer() then
-			local ef = EffectData()
-			ef:SetOrigin(self.Owner:GetShootPos())
-			ef:SetEntity(self.Weapon)
-			ef:SetAngle(self.Owner:GetAngles())
-			//ef.Silenced = self.Weapon.IsSilenced
-			util.Effect("ta_ef_muzzle", ef)
-		end
+		local ef = EffectData()
+		ef:SetOrigin(self.Owner:GetShootPos())
+		ef:SetEntity(self.Weapon)
+		ef:SetAngles(self.Owner:GetAngles())
+		//ef.Silenced = self.Weapon.IsSilenced
+		util.Effect("ta_ef_muzzle", ef)
 	end
 	
 	self.Weapon.ReloadDelay = time + 0.5
@@ -970,15 +966,10 @@ function SWEP:CSShootBullet( dmg, recoil, numbul, cone )
 	
 	if ( self.Owner:IsNPC() ) then return end
 	
-	// CUSTOM RECOIL !
-	if ( (SinglePlayer() && SERVER) || ( !SinglePlayer() && CLIENT && IsFirstTimePredicted() ) ) then
-	
-		local eyeang = self.Owner:EyeAngles()
-		eyeang.pitch = eyeang.pitch - (recoil * 0.5)
-		eyeang.yaw = eyeang.yaw - (recoil * math.random(-1, 1) * 0.25)
-		self.Owner:SetEyeAngles( eyeang )
-	
-	end
+	local eyeang = self.Owner:EyeAngles()
+	eyeang.pitch = eyeang.pitch - (recoil * 0.5)
+	eyeang.yaw = eyeang.yaw - (recoil * math.random(-1, 1) * 0.25)
+	self.Owner:SetEyeAngles( eyeang )
 end
 
 
@@ -1237,29 +1228,6 @@ if CLIENT then
 		dlight.Size = 128
 		dlight.Decay = 512
 		dlight.DieTime = CurTime() + 0.2
-		
-		ParticleEffect("cstm_incendiary_hit", trace.HitPos, trace.HitNormal:Angle(), nil)
-		/*for i = 1, 10 do
-			local part = self.Weapon.Em:Add("effects/muzzleflash" .. math.random(1, 4), trace.HitPos)
-			part:SetStartSize(8)
-			part:SetEndSize(8)
-			part:SetStartAlpha(255)
-			part:SetEndAlpha(0)
-			part:SetDieTime(0.2)
-			part:SetRoll(math.random(0, 360))
-			part:SetLighting(false)
-			part:SetVelocity(trace.HitNormal * 100 + VectorRand() * 100)
-			
-			local part = self.Weapon.Em:Add("effects/fire_embers" .. math.random(1, 3), trace.HitPos)
-			part:SetStartSize(8)
-			part:SetEndSize(8)
-			part:SetStartAlpha(255)
-			part:SetEndAlpha(0)
-			part:SetDieTime(0.2)
-			part:SetRoll(math.random(0, 360))
-			part:SetLighting(false)
-			part:SetVelocity(trace.HitNormal * 100 + VectorRand() * 100)
-		end*/
 	end
 
 	function SWEP:AdjustMouseSensitivity()
@@ -1280,24 +1248,12 @@ if CLIENT then
 					self.Weapon.Em = ParticleEmitter(muz.Pos)
 				end
 				
-				if GetConVarNumber("ta_ef_smoke") > 0 then
-					ParticleEffect(self.Weapon.SmokeEffect or "cstm_child_smoke_small", muz.Pos, self.Owner:EyeAngles(), muz)
-				end
-				
 				if (self.Weapon.VElements and self.Weapon.VElements["silencer"] != nil and self.Owner:GetActiveWeapon().VElements["silencer"].color.a != 255) or self.Weapon.VElements and self.Weapon.VElements["silencer"] == nil then -- I check if it's not nil and then if it's nil to ensure that weapons that don't have a silencer don't bug
 					if GetConVarNumber("ta_ef_heat") > 0 then
 						local par = self.Weapon.Em:Add("sprites/heatwave", muz.Pos)
 						par:SetStartSize(8)
 						par:SetEndSize(4)
 						par:SetDieTime(0.3)
-					end
-					
-					if GetConVarNumber("ta_ef_extramuzzle") > 0 then
-						ParticleEffectAttach(self.Weapon.Muzzle or "cstm_muzzle_pistol", PATTACH_POINT_FOLLOW, vm, vm:LookupAttachment("1"))
-					end
-					
-					if GetConVarNumber("ta_ef_sparks") > 0 then
-						ParticleEffectAttach(self.Weapon.SparkEffect or "cstm_child_sparks_small", PATTACH_POINT_FOLLOW, vm, vm:LookupAttachment("1"))
 					end
 				end
 				
@@ -1313,7 +1269,7 @@ if CLIENT then
 		local wep = um:ReadEntity()
 		local alpha = um:ReadShort()
 		
-		if ValidEntity(wep) then
+		if IsValid(wep) then
 			if wep.VElements and wep.VElements["silencer"] then
 				wep.VElements["silencer"].color = Color(255, 255, 255, alpha)
 			end
@@ -1330,7 +1286,7 @@ if CLIENT then
 		local wep = um:ReadEntity()
 		local number = um:ReadShort()
 		
-		if ValidEntity(wep) and wep.VElements and wep.WElements then
+		if IsValid(wep) and wep.VElements and wep.WElements then
 			if wep.CurSightsTexture then
 				Material(wep.CurSightsTexture):SetMaterialTexture("$basetexture", Material("models/weapons/transparent"):GetMaterialTexture("$basetexture"))
 			end
@@ -1431,7 +1387,7 @@ if CLIENT then
 	local function ReceiveHT(um)
 		local wep = um:ReadEntity()
 		
-		if ValidEntity(wep) and wep.SetWeaponHoldType then
+		if IsValid(wep) and wep.SetWeaponHoldType then
 			wep:SetWeaponHoldType(um:ReadString())
 		end
 	end
@@ -1441,7 +1397,7 @@ if CLIENT then
 	local function ReceiveNumBul(um)
 		local ent = um:ReadEntity()
 	
-		if ValidEntity(ent) then
+		if IsValid(ent) then
 			ent.Primary.NumShots = 1
 		end
 	end
@@ -1453,7 +1409,7 @@ if CLIENT then
 		local ply = LocalPlayer()
 		local wep = ply:GetActiveWeapon()
 		
-		if ValidEntity(ply) and ValidEntity(wep) then
+		if IsValid(ply) and IsValid(wep) then
 			if Mode == "semi" then
 				wep.Bullets = 1
 				wep.Primary.Automatic = false
@@ -1557,7 +1513,7 @@ if CLIENT then
 		if ( self.Owner == LocalPlayer() && self.Owner:ShouldDrawLocalPlayer() ) then
 
 			local tr = util.GetPlayerTrace( self.Owner )
-			tr.mask = ( CONTENTS_SOLID|CONTENTS_MOVEABLE|CONTENTS_MONSTER|CONTENTS_WINDOW|CONTENTS_DEBRIS|CONTENTS_GRATE|CONTENTS_AUX )
+			tr.mask = ( CONTENTS_SOLID+CONTENTS_MOVEABLE+CONTENTS_MONSTER+CONTENTS_WINDOW+CONTENTS_DEBRIS+CONTENTS_GRATE+CONTENTS_AUX )
 			local trace = util.TraceLine( tr )
 			
 			local coords = trace.HitPos:ToScreen()
@@ -1813,7 +1769,7 @@ if SERVER then
 		wep:SetNextSecondaryFire(CurTime() + 0.5)
 		
 		ply:EmitSound("npc/fast_zombie/claw_miss1.wav", 80, 100)
-		ply:ViewPunch(Vector(-5, 10, 0))
+		ply:ViewPunch(Angle(-5, 10, 0))
 		
 		timer.Simple(0.1, function()
 		

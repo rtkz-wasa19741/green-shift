@@ -10,7 +10,7 @@ function ENT:Initialize()
 end
 
 function ENT:Think()
-	if ValidEntity(self.Entity.Hacker) and self.Entity.Hacker:Alive() and self.Entity.Hacker:GetPos():Distance(self.Entity:GetPos()) <= 80 and GetGlobalInt("n1data") != 100 and GameEnded != true then
+	if IsValid(self.Entity.Hacker) and self.Entity.Hacker:Alive() and self.Entity.Hacker:GetPos():Distance(self.Entity:GetPos()) <= 80 and GetGlobalInt("n1data") != 100 and GameEnded != true then
 		SetGlobalInt("n1data", GetGlobalInt("n1data") + 1)
 		
 		if GetGlobalInt("n1data") == 100 then

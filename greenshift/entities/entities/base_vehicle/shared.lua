@@ -57,7 +57,7 @@ function ENT:SharedInitialize()
 	// In singleplayer we do all the controls and stuff on the server
 	// In multiplayer we do it all on the client and grab
 	self.DoProcessing = false
-	if (CLIENT && !SinglePlayer() || SERVER && SinglePlayer()) then
+	if (CLIENT && !game.SinglePlayer() || SERVER && SinglePlayer()) then
 		self.DoProcessing = true
 	end
 	
@@ -77,7 +77,7 @@ function ENT:ReConfigurePhysics()
 
 	if ( CLIENT ) then
 	
-		if ( self:GetDriver() == LocalPlayer() && !SinglePlayer() ) then
+		if ( self:GetDriver() == LocalPlayer() && !game.SinglePlayer() ) then
 			// If the current driver is the local player then predict the physics object
 			self:SetupPhysics()
 		else
@@ -87,7 +87,7 @@ function ENT:ReConfigurePhysics()
 	
 	else
 	
-		if ( SinglePlayer() ) then
+		if ( game.SinglePlayer() ) then
 			// If we're in singleplayer the vehicle is 100% serverside
 			self:SetupPhysics()
 		else
@@ -126,7 +126,7 @@ function ENT:SetDriver( ply )
 		ply:Spectate( OBS_MODE_CHASE )
 		ply:SpectateEntity( self.Entity )
 		
-		if ( !SinglePlayer() ) then
+		if ( !game.SinglePlayer() ) then
 			ply:SetClientsideVehicle( self.Entity )
 		end
 	
@@ -151,7 +151,7 @@ function ENT:Think()
 		end
 		
 		// Keep the clientside shadow up to date
-		if ( phys && (SinglePlayer() || self:GetDriver() != LocalPlayer()) ) then
+		if ( phys && (game.SinglePlayer() || self:GetDriver() != LocalPlayer()) ) then
 		
 			phys:UpdateShadow( self.Entity:GetPos(), self.Entity:GetAngles(), 0.01 )
 			
@@ -215,13 +215,13 @@ function ENT:CalcView( ply, origin, angles, fov )
 	local phys = self.Entity:GetPhysicsObject()
 	if ( !phys ) then return end
 	
-	self.LastViewYaw = self.LastViewYaw or phys:GetAngle().yaw
+	self.LastViewYaw = self.LastViewYaw or phys:GetAngles().yaw
 	
-	local distance = math.AngleDifference( self.LastViewYaw, phys:GetAngle().yaw )
-	self.LastViewYaw = math.ApproachAngle( self.LastViewYaw, phys:GetAngle().yaw, distance * FrameTime() * 2 )
+	local distance = math.AngleDifference( self.LastViewYaw, phys:GetAngles().yaw )
+	self.LastViewYaw = math.ApproachAngle( self.LastViewYaw, phys:GetAngles().yaw, distance * FrameTime() * 2 )
 
 	local view = {}
-	view.origin 	= phys:GetPos() + Vector( 0, 0, 64 ) - phys:GetAngle():Forward() * 128
+	view.origin 	= phys:GetPos() + Vector( 0, 0, 64 ) - phys:GetAngles():Forward() * 128
 	view.angles		= Angle( 10, self.LastViewYaw - distance * 1.25, distance*0.1 ) 
 	view.fov 		= 90
 	return view
@@ -240,7 +240,7 @@ function ENT:PhysicsSimulate( phys, deltatime )
 //	end
 
 	// Make sure we're the right way up!
-	local up = phys:GetAngle():Up()
+	local up = phys:GetAngles():Up()
 	if ( up.z < 0.33 ) then
 		return SIM_NOTHING
 	end
@@ -251,8 +251,8 @@ function ENT:PhysicsSimulate( phys, deltatime )
 	local right = 0
 	
 	local Velocity = phys:GetVelocity()
-	local ForwardVel = phys:GetAngle():Forward():Dot( Velocity )
-	local RightVel = phys:GetAngle():Right():Dot( Velocity )
+	local ForwardVel = phys:GetAngles():Forward():Dot( Velocity )
+	local RightVel = phys:GetAngles():Right():Dot( Velocity )
 	
 	if ( driver ) then
 	
@@ -270,7 +270,7 @@ function ENT:PhysicsSimulate( phys, deltatime )
 	local Linear = ( Vector( forward, right, 0 ) ) * deltatime * 1000;
 	
 	// Do angle changing stuff.
-	local AngleVel = phys:GetAngleVelocity()
+	local AngleVel = phys:GetAnglesVelocity()
 	// This simulates the friction of the tires
 	local AngleFriction = AngleVel * -0.1
 	

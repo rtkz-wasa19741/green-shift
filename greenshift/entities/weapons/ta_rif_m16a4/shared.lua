@@ -321,7 +321,7 @@ function SWEP:PrimaryAttack()
 		return
 	end
 	
-	if CLIENT and not SinglePlayer() then
+	if CLIENT and not game.SinglePlayer() then
 		if self.Owner:KeyDown(IN_USE) then
 			if (self.Weapon.VElements and self.Weapon.VElements["grenadelauncher"] and self.Weapon.VElements["grenadelauncher"].color.a == 255) or self.Weapon:GetDTInt(3) == 8 then
 				return
@@ -345,7 +345,7 @@ function SWEP:PrimaryAttack()
 			local prop = ents.Create(self.Weapon.GrenadeType)
 			prop:SetPos(self.Owner:EyePos() + self.Owner:GetAimVector() * 24 + self.Owner:GetRight() * 4 + self.Owner:GetUp() * -6)
 			prop:SetOwner(self.Owner)
-			prop:SetAngles(self.Owner:EyeAngles())
+			prop:SetAngless(self.Owner:EyeAngles())
 			prop.BlastRadius = self.Weapon.BlastRadius
 			prop.BlastDamage = self.Weapon.BlastDamage
 			prop:Spawn()

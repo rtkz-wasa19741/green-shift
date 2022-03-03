@@ -4,8 +4,8 @@ end
 
 if CLIENT then
     SWEP.AcogGlass = Material( "models/wystan/attachments/acog/lense" )
-    SWEP.AcogRT = GetRenderTarget( "acog_glass_rt", 512, 512, false )
-    SWEP.AcogGlass:SetMaterialTexture( "$basetexture", SWEP.AcogRT )
+    --SWEP.AcogRT = GetRenderTarget( "acog_glass_rt", 512, 512, false )
+    --SWEP.AcogGlass:SetMaterialTexture( "$basetexture", SWEP.AcogRT )
 end
 
 function SWEP:Initialize()
@@ -39,7 +39,7 @@ if CLIENT then
     function SWEP:ViewModelDrawn()
          
         local vm = self.Owner:GetViewModel()
-        if !ValidEntity(vm) then return end
+        if !IsValid(vm) then return end
          
         if (!self.VElements) then return end
          
@@ -48,10 +48,10 @@ if CLIENT then
         end
  
         if (self.ShowViewModel == nil or self.ShowViewModel) then
-            vm:SetColor(255,255,255,255)
+            vm:SetColor( Color(255,255,255,255) )
         else
             // we set the alpha to 1 instead of 0 because else ViewModelDrawn stops being called
-            vm:SetColor(255,255,255,1)
+            vm:SetColor( Color(255,255,255,1) )
         end
          
         if (!self.vRenderOrder) then
@@ -83,14 +83,14 @@ if CLIENT then
              
             if (!pos) then continue end
              
-            if (v.type == "Model" and ValidEntity(model)) then
+            if (v.type == "Model" and IsValid(model)) then
  
                 model:SetPos(pos + ang:Forward() * v.pos.x + ang:Right() * v.pos.y + ang:Up() * v.pos.z )
                 ang:RotateAroundAxis(ang:Up(), v.angle.y)
                 ang:RotateAroundAxis(ang:Right(), v.angle.p)
                 ang:RotateAroundAxis(ang:Forward(), v.angle.r)
  
-                model:SetAngles(ang)
+                model:SetAngless(ang)
                 model:SetModelScale(v.size)
                  
                 if (v.material == "") then
@@ -197,7 +197,7 @@ if CLIENT then
  
         end
          
-        if (ValidEntity(self.Owner)) then
+        if (IsValid(self.Owner)) then
             bone_ent = self.Owner
         else
             // when the weapon is dropped
@@ -222,14 +222,14 @@ if CLIENT then
             local model = v.modelEnt
             local sprite = v.spriteMaterial
              
-            if (v.type == "Model" and ValidEntity(model)) then
+            if (v.type == "Model" and IsValid(model)) then
  
                 model:SetPos(pos + ang:Forward() * v.pos.x + ang:Right() * v.pos.y + ang:Up() * v.pos.z )
                 ang:RotateAroundAxis(ang:Up(), v.angle.y)
                 ang:RotateAroundAxis(ang:Right(), v.angle.p)
                 ang:RotateAroundAxis(ang:Forward(), v.angle.r)
  
-                model:SetAngles(ang)
+                model:SetAngless(ang)
                 model:SetModelScale(v.size)
                  
                 if (v.material == "") then
@@ -316,10 +316,10 @@ if CLIENT then
             pos, ang = Vector(0,0,0), Angle(0,0,0)
             local m = ent:GetBoneMatrix(bone)
             if (m) then
-                pos, ang = m:GetTranslation(), m:GetAngle()
+                pos, ang = m:GetTranslation(), m:GetAngles()
             end
              
-            if (ValidEntity(self.Owner) and self.Owner:IsPlayer() and
+            if (IsValid(self.Owner) and self.Owner:IsPlayer() and
                 ent == self.Owner:GetViewModel() and self.ViewModelFlip) then
                 ang.r = -ang.r // Fixes mirrored models
             end
@@ -335,13 +335,13 @@ if CLIENT then
  
         // Create the clientside models here because Garry says we can't do it in the render hook
         for k, v in pairs( tab ) do
-            if (v.type == "Model" and v.model and v.model != "" and (!ValidEntity(v.modelEnt) or v.createdModel != v.model) and
+            if (v.type == "Model" and v.model and v.model != "" and (!IsValid(v.modelEnt) or v.createdModel != v.model) and
                     string.find(v.model, ".mdl") and file.Exists ("../"..v.model) ) then
                  
                 v.modelEnt = ClientsideModel(v.model, RENDER_GROUP_VIEW_MODEL_OPAQUE)
-                if (ValidEntity(v.modelEnt)) then
+                if (IsValid(v.modelEnt)) then
                     v.modelEnt:SetPos(self:GetPos())
-                    v.modelEnt:SetAngles(self:GetAngles())
+                    v.modelEnt:SetAngless(self:GetAnglesss())
                     v.modelEnt:SetParent(self)
                     v.modelEnt:SetNoDraw(true)
                     v.createdModel = v.model
@@ -380,12 +380,12 @@ if CLIENT then
     function SWEP:RemoveModels()
         if (self.VElements) then
             for k, v in pairs( self.VElements ) do
-                if (ValidEntity( v.modelEnt )) then v.modelEnt:Remove() end
+                if (IsValid( v.modelEnt )) then v.modelEnt:Remove() end
             end
         end
         if (self.WElements) then
             for k, v in pairs( self.WElements ) do
-                if (ValidEntity( v.modelEnt )) then v.modelEnt:Remove() end
+                if (IsValid( v.modelEnt )) then v.modelEnt:Remove() end
             end
         end
         self.VElements = nil

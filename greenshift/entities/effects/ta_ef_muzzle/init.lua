@@ -1,5 +1,5 @@
 function EFFECT:Init(ef)
-	if ValidEntity(ef:GetEntity()) then
+	if IsValid(ef:GetEntity()) then
 		self:SetPos(ef:GetOrigin())
 		self.Emitter = ParticleEmitter(ef:GetOrigin())
 		local ent = ef:GetEntity()
@@ -19,7 +19,7 @@ function EFFECT:Init(ef)
 end
 
 function EFFECT:Think()
-	if not ValidEntity(self.Emitter) then
+	if not IsValid(self.Emitter) then
 		return false
 	end
 	

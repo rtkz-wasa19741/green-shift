@@ -82,7 +82,7 @@ function SWEP:Think()
 				self.Weapon:SendWeaponAnim(ACT_VM_THROW)
 				
 				timer.Simple(0.25, function()
-					if not ValidEntity(self.Weapon) or not self.Owner:Alive() or self.Weapon:GetClass() != self.Owner:GetActiveWeapon():GetClass() then
+					if not IsValid(self.Weapon) or not self.Owner:Alive() or self.Weapon:GetClass() != self.Owner:GetActiveWeapon():GetClass() then
 						return
 					end
 					
@@ -91,7 +91,7 @@ function SWEP:Think()
 						
 						local throwable = ents.Create("ta_incendiary")
 						throwable:SetPos(self.Owner:EyePos() + self.Owner:GetAimVector() * 16 + self.Owner:GetRight() * 5 + self.Owner:GetUp() * -2)
-						throwable:SetAngles(self.Owner:EyeAngles())
+						throwable:SetAngless(self.Owner:EyeAngles())
 						throwable:SetOwner(self.Owner)
 						throwable:Spawn()
 						

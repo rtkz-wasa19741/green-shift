@@ -778,7 +778,7 @@ function GM:Think()
 		if viewmodel then
 			if ply.Class == "Recon" and ply:GetDTInt(3) != 0 then
 		
-				ply:GetViewModel():SetColor(255, 255, 255, ply:GetDTInt(3))
+				ply:GetViewModel():SetColor( Color(255, 255, 255, ply:GetDTInt(3)) )
 			
 				if ply:GetActiveWeapon().VElements then
 					for k, v in pairs(ply:GetActiveWeapon().VElements) do
@@ -3416,10 +3416,10 @@ end
 
 usermessage.Hook("PKill", TA_PlayerKill)
 
-local function TA_DoAction(um)
-	local entity = um:ReadEntity()
-	local entity2 = um:ReadEntity()
-	local number = um:ReadShort()
+local function TA_DoAction(len)
+	local entity = net.ReadEntity()
+	local entity2 = net.ReadEntity()
+	local number = net.ReadData()
 	local ply = LocalPlayer()
 	
 	ActionPointNotify = false
@@ -3465,7 +3465,7 @@ local function TA_DoAction(um)
 	ActionTextAlpha = 255
 end
 
-usermessage.Hook("ACT", TA_DoAction)
+net.Receive("ACT", TA_DoAction)
 
 local function TA_GAYROLL(um)
 	local ply = um:ReadEntity()

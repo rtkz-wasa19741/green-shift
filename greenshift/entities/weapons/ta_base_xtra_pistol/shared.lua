@@ -21,9 +21,6 @@ if ( CLIENT ) then
 	SWEP.Silenced = 0
 	SWEP.PitchMod = 1
 	SWEP.RollMod = 1
-	// This is the font that's used to draw the death icons
-	surface.CreateFont( "csd", ScreenScale( 30 ), 500, true, true, "CSKillIcons" )
-	surface.CreateFont( "csd", ScreenScale( 60 ), 500, true, true, "CSSelectIcons" )
 	
 	language.Add("striderminigun_ammo", "7.62x39MM Ammo")
 	language.Add("combinecannon_ammo", ".50AE Ammo")
@@ -272,7 +269,7 @@ function SWEP:Think()
 	if CLIENT then
 		self.Owner:GetViewModel().BuildBonePositions = function(self, numbon, numphysbon)
 		
-			if not ValidEntity(LocalPlayer():GetActiveWeapon()) then
+			if not IsValid(LocalPlayer():GetActiveWeapon()) then
 				return
 			end
 			
@@ -286,7 +283,7 @@ function SWEP:Think()
 				return
 			end
 			
-			if ValidEntity(wep) then
+			if IsValid(wep) then
 				if wep.MagBone then
 					if wep.VElements and wep.VElements["cmag"].color.a == 255 then 
 						local bone = vm:LookupBone(wep.MagBone)
@@ -502,7 +499,7 @@ function SWEP:Think()
 						end
 						
 						timer.Simple(TimeRel, function()
-							if not ValidEntity(wep) or wep:GetClass() != ply:GetActiveWeapon():GetClass() then
+							if not IsValid(wep) or wep:GetClass() != ply:GetActiveWeapon():GetClass() then
 								return
 							end
 						
@@ -510,7 +507,7 @@ function SWEP:Think()
 						end)
 					
 						timer.Simple(TimeIdle, function()
-							if not ValidEntity(wep) or wep:GetClass() != ply:GetActiveWeapon():GetClass() then
+							if not IsValid(wep) or wep:GetClass() != ply:GetActiveWeapon():GetClass() then
 								return
 							end
 						
@@ -534,114 +531,112 @@ end
 
 if CLIENT then
     function SWEP:ViewModelDrawn()
-         
-        local vm = self.Owner:GetViewModel()
-        if !ValidEntity(vm) then return end
-         
-        if (!self.VElements) then return end
-         
-        if vm.BuildBonePositions ~= self.BuildViewModelBones then
-            vm.BuildBonePositions = self.BuildViewModelBones
-        end
- 
-        if (self.ShowViewModel == nil or self.ShowViewModel) then
-            vm:SetColor(255,255,255,255)
-        else
-            // we set the alpha to 1 instead of 0 because else ViewModelDrawn stops being called
-            vm:SetColor(255,255,255,1)
-        end
-         
-        if (!self.vRenderOrder) then
-             
-            // we build a render order because sprites need to be drawn after models
-            self.vRenderOrder = {}
- 
-            for k, v in pairs( self.VElements ) do
-                if (v.type == "Model") then
-                    table.insert(self.vRenderOrder, 1, k)
-                elseif (v.type == "Sprite" or v.type == "Quad") then
-                    table.insert(self.vRenderOrder, k)
-                end
-            end
-             
-        end
- 
-        for k, name in ipairs( self.vRenderOrder ) do
-         
-            local v = self.VElements[name]
-            if (!v) then self.vRenderOrder = nil break end
-         
-            local model = v.modelEnt
-            local sprite = v.spriteMaterial
-             
-            if (!v.bone) then continue end
-             
-            local pos, ang = self:GetBoneOrientation( self.VElements, v, vm )
-             
-            if (!pos) then continue end
-             
-            if (v.type == "Model" and ValidEntity(model)) then
- 
-                model:SetPos(pos + ang:Forward() * v.pos.x + ang:Right() * v.pos.y + ang:Up() * v.pos.z )
-                ang:RotateAroundAxis(ang:Up(), v.angle.y)
-                ang:RotateAroundAxis(ang:Right(), v.angle.p)
-                ang:RotateAroundAxis(ang:Forward(), v.angle.r)
- 
-                model:SetAngles(ang)
-                model:SetModelScale(v.size)
-                 
-                if (v.material == "") then
-                    model:SetMaterial("")
-                elseif (model:GetMaterial() != v.material) then
-                    model:SetMaterial( v.material )
-                end
-                 
-                if (v.skin and v.skin != model:GetSkin()) then
-                    model:SetSkin(v.skin)
-                end
-                 
-                if (v.bodygroup) then
-                    for k, v in pairs( v.bodygroup ) do
-                        if (model:GetBodygroup(k) != v) then
-                            model:SetBodygroup(k, v)
-                        end
-                    end
-                end
-                 
-                if (v.surpresslightning) then
-                    render.SuppressEngineLighting(true)
-                end
-                 
-                render.SetColorModulation(v.color.r/255, v.color.g/255, v.color.b/255)
-                render.SetBlend(v.color.a/255)
-                model:DrawModel()
-                render.SetBlend(1)
-                render.SetColorModulation(1, 1, 1)
-                 
-                if (v.surpresslightning) then
-                    render.SuppressEngineLighting(false)
-                end
-                 
-            elseif (v.type == "Sprite" and sprite) then
-                 
-                local drawpos = pos + ang:Forward() * v.pos.x + ang:Right() * v.pos.y + ang:Up() * v.pos.z
-                render.SetMaterial(sprite)
-                render.DrawSprite(drawpos, v.size.x, v.size.y, v.color)
-                 
-            elseif (v.type == "Quad" and v.draw_func) then
-                 
-                local drawpos = pos + ang:Forward() * v.pos.x + ang:Right() * v.pos.y + ang:Up() * v.pos.z
-                ang:RotateAroundAxis(ang:Up(), v.angle.y)
-                ang:RotateAroundAxis(ang:Right(), v.angle.p)
-                ang:RotateAroundAxis(ang:Forward(), v.angle.r)
-                 
-                cam.Start3D2D(drawpos, ang, v.size)
-                    v.draw_func( self )
-                cam.End3D2D()
- 
-            end
-             
-        end
+        
+		local vm = self:GetOwner():GetViewModel()
+		if !IsValid(vm) then return end
+
+		--self:UpdateBonePositions(vm)
+
+		if (!self.VElements) then return end
+		if (!self.vRenderOrder) then
+
+			-- we build a render order because sprites need to be drawn after models
+			self.vRenderOrder = {}
+
+			for k, v in pairs( self.VElements ) do
+				if (v.type == "Model") then
+					table.insert(self.vRenderOrder, 1, k)
+				elseif (v.type == "Sprite" or v.type == "Quad") then
+					table.insert(self.vRenderOrder, k)
+				end
+			end
+
+		end
+
+		for k, name in ipairs( self.vRenderOrder ) do
+
+			local v = self.VElements[name]
+			if (!v) then self.vRenderOrder = nil break end
+			if (v.hide) then continue end
+			if (v.attach) then continue end
+
+			local model = v.modelEnt
+			local sprite = v.spriteMaterial
+
+			if (!v.bone) then continue end
+
+			local pos, ang = self:GetBoneOrientation( self.VElements, v, vm )
+
+			if (!pos) then continue end
+
+			if (v.type == "Model" and IsValid(model)) then
+
+				model:SetPos(pos + ang:Forward() * v.pos.x + ang:Right() * v.pos.y + ang:Up() * v.pos.z )
+				ang:RotateAroundAxis(ang:Up(), v.angle.y)
+				ang:RotateAroundAxis(ang:Right(), v.angle.p)
+				ang:RotateAroundAxis(ang:Forward(), v.angle.r)
+
+				model:SetAngless(ang)
+				--model:SetModelScale(v.size)
+				local matrix = Matrix()
+				matrix:Scale(v.size)
+				model:EnableMatrix( "RenderMultiply", matrix )
+
+				if (v.material == "") then
+					model:SetMaterial("")
+				elseif (model:GetMaterial() != v.material) then
+					model:SetMaterial( v.material )
+				end
+
+				if (v.skin and v.skin != model:GetSkin()) then
+					model:SetSkin(v.skin)
+				end
+
+				if (v.bodygroup) then
+					for k, v in ipairs( v.bodygroup ) do
+						if (model:GetBodygroup(k) != v) then
+							model:SetBodygroup(k, v)
+						end
+					end
+				end
+
+				if (v.surpresslightning) then
+					render.SuppressEngineLighting(true)
+				end
+
+				render.SetColorModulation(v.color.r/255, v.color.g/255, v.color.b/255)
+				render.SetBlend(v.color.a/255)
+				model:DrawModel()
+				render.SetBlend(1)
+				render.SetColorModulation(1, 1, 1)
+
+				if (v.surpresslightning) then
+					render.SuppressEngineLighting(false)
+				end
+
+			elseif (v.type == "Sprite" and sprite) then
+
+				if not v.attach then
+					local drawpos = pos + ang:Forward() * v.pos.x + ang:Right() * v.pos.y + ang:Up() * v.pos.z
+					render.SetMaterial(sprite)
+					render.DrawSprite(drawpos, v.size.x, v.size.y, v.color)
+				end
+
+			elseif (v.type == "Quad" and v.draw_func) then
+
+				local drawpos = pos + ang:Forward() * v.pos.x + ang:Right() * v.pos.y + ang:Up() * v.pos.z
+				ang:RotateAroundAxis(ang:Up(), v.angle.y)
+				ang:RotateAroundAxis(ang:Right(), v.angle.p)
+				ang:RotateAroundAxis(ang:Forward(), v.angle.r)
+
+				cam.Start3D2D(drawpos, ang, v.size)
+					v.draw_func( self )
+				cam.End3D2D()
+
+			end
+
+		end
+
 		
         local old
        
@@ -792,7 +787,7 @@ function SWEP:CSShootBullet( dmg, recoil, numbul, cone )
 	if ( self.Owner:IsNPC() ) then return end
 	
 	// CUSTOM RECOIL !
-	if ( (SinglePlayer() && SERVER) || ( !SinglePlayer() && CLIENT && IsFirstTimePredicted() ) ) then
+	if ( (game.SinglePlayer() && SERVER) || ( !game.SinglePlayer() && CLIENT && IsFirstTimePredicted() ) ) then
 	
 		local eyeang = self.Owner:EyeAngles()
 		eyeang.pitch = eyeang.pitch - (recoil * 1 * 0.5)
@@ -845,7 +840,7 @@ if CLIENT then
 	local function SilenceWeapon(um)
 		local wep = um:ReadEntity()
 		
-		if ValidEntity(wep) then
+		if IsValid(wep) then
 			wep.Silenced = um:ReadShort()
 		end
 	end
