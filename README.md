@@ -1,5 +1,5 @@
-# green-
-
+# Green Shift 
+# Made By Spy + Kogitsune
 If you're a server owner, here's a list of useful stuff for you.
 
 Before you start the gamemode, remove various addons that are meant for building - they might mess the gamemode up.
