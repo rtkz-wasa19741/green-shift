@@ -49,7 +49,7 @@ function GM:ShouldCollide( Ent1, Ent2 )
 end
 
 function GM:PlayerFootstep( ply, vPos, iFoot, strSoundName, fVolume, pFilter )
-	if SERVER then
+	if SERVER and ply.FootstepVolumeMul then
 		local volume = (ply:GetVelocity():Length() * 0.5) * ply.FootstepVolumeMul
 		
 		local maxvolume = 70 * ply.FootstepVolumeMul
@@ -100,15 +100,15 @@ end
 function GM:Move(ply, data)
 	if SERVER then
 		if ply:KeyDown(IN_SPEED) then
-			if ply:KeyDown(IN_BACK) then
+			if ply:KeyDown(IN_BACK) and ply.DamageSpeedMod and ply.StrafeMod then
 				data:SetForwardSpeed((ply:GetRunSpeed() * -0.7 * ply.DamageSpeedMod) * ply.StrafeMod)
-			elseif ply:KeyDown(IN_FORWARD) then
+			elseif ply:KeyDown(IN_FORWARD) and ply.DamageSpeedMod then
 				data:SetForwardSpeed(ply:GetRunSpeed() * ply.DamageSpeedMod)
 			end
 			
-			if ply:KeyDown(IN_MOVERIGHT)  then
+			if ply:KeyDown(IN_MOVERIGHT) and ply.StrafeMod then
 				data:SetSideSpeed((ply:GetRunSpeed() * 0.8 * ply.DamageSpeedMod) * ply.StrafeMod)
-			elseif ply:KeyDown(IN_MOVELEFT) then
+			elseif ply:KeyDown(IN_MOVELEFT) and ply.StrafeMod then
 				data:SetSideSpeed((ply:GetRunSpeed() * -0.8 * ply.DamageSpeedMod) * ply.StrafeMod)
 			end
 		end

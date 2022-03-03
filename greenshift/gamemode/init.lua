@@ -133,16 +133,16 @@ PS.MPD = {
 	Sound("npc/metropolice/die3.wav"),
 	Sound("npc/metropolice/die4.wav") }
 
-CreateConVar("ta_respawntime_rebel", "5", {FCVAR_ARCHIVE | FCVAR_REPLICATED | FCVAR_NOTIFY}) -- in seconds
-CreateConVar("ta_respawntime_combine", "5", {FCVAR_ARCHIVE | FCVAR_REPLICATED | FCVAR_NOTIFY}) -- in seconds
-CreateConVar("ta_painsounds_derpmode", "0", {FCVAR_ARCHIVE | FCVAR_REPLICATED | FCVAR_NOTIFY})
-CreateConVar("ta_rounds", "4", {FCVAR_ARCHIVE | FCVAR_REPLICATED | FCVAR_NOTIFY})
-CreateConVar("ta_timelimit_tdm", "15", {FCVAR_ARCHIVE | FCVAR_REPLICATED | FCVAR_NOTIFY}) -- in minutes
-CreateConVar("ta_timelimit_comsab", "10", {FCVAR_ARCHIVE | FCVAR_REPLICATED | FCVAR_NOTIFY}) -- in minutes
-CreateConVar("ta_timelimit_supplydepot", "5", {FCVAR_ARCHIVE | FCVAR_REPLICATED | FCVAR_NOTIFY}) -- in minutes
-CreateConVar("ta_timelimit_vip", "5", {FCVAR_ARCHIVE | FCVAR_REPLICATED | FCVAR_NOTIFY}) -- in minutes
-CreateConVar("ta_hardcore", "0", {FCVAR_ARCHIVE | FCVAR_REPLICATED | FCVAR_NOTIFY})
-CreateConVar("ta_vip_lives", "3", {FCVAR_ARCHIVE | FCVAR_REPLICATED | FCVAR_NOTIFY})
+CreateConVar("ta_respawntime_rebel", "5", {FCVAR_ARCHIVE + FCVAR_REPLICATED + FCVAR_NOTIFY}) -- in seconds
+CreateConVar("ta_respawntime_combine", "5", {FCVAR_ARCHIVE + FCVAR_REPLICATED + FCVAR_NOTIFY}) -- in seconds
+CreateConVar("ta_painsounds_derpmode", "0", {FCVAR_ARCHIVE + FCVAR_REPLICATED + FCVAR_NOTIFY})
+CreateConVar("ta_rounds", "4", {FCVAR_ARCHIVE + FCVAR_REPLICATED + FCVAR_NOTIFY})
+CreateConVar("ta_timelimit_tdm", "15", {FCVAR_ARCHIVE + FCVAR_REPLICATED + FCVAR_NOTIFY}) -- in minutes
+CreateConVar("ta_timelimit_comsab", "10", {FCVAR_ARCHIVE + FCVAR_REPLICATED + FCVAR_NOTIFY}) -- in minutes
+CreateConVar("ta_timelimit_supplydepot", "5", {FCVAR_ARCHIVE + FCVAR_REPLICATED + FCVAR_NOTIFY}) -- in minutes
+CreateConVar("ta_timelimit_vip", "5", {FCVAR_ARCHIVE + FCVAR_REPLICATED + FCVAR_NOTIFY}) -- in minutes
+CreateConVar("ta_hardcore", "0", {FCVAR_ARCHIVE + FCVAR_REPLICATED + FCVAR_NOTIFY})
+CreateConVar("ta_vip_lives", "3", {FCVAR_ARCHIVE + FCVAR_REPLICATED + FCVAR_NOTIFY})
 
 include( 'shared.lua' )
 include('filestodownload.lua')
@@ -151,16 +151,16 @@ include('precache.lua')
 AddCSLuaFile('cl_targetid.lua')
 AddCSLuaFile('cl_scoreboard.lua')
 AddCSLuaFile('cl_init.lua')
-AddCSLuaFile('cl_nv.lua')
-AddCSLuaFile('cl_emv.lua')
-AddCSLuaFile("autorun/client/climb_helpmenu.lua")
+--AddCSLuaFile('cl_nv.lua')
+--AddCSLuaFile('cl_emv.lua')
+--AddCSLuaFile("autorun/client/climb_helpmenu.lua")
 AddCSLuaFile('shared.lua')
 AddCSLuaFile('cl_deathnotice.lua')
 AddCSLuaFile('precache.lua')
 DeriveGamemode("base")
 
 GM.Name 		= "Green Shift"
-GM.Author 		= "Spy/Kogitsune"
+GM.Author 		= "Spy/Kogitsune + Fixed by rtkz_wasa19741"
 GM.Email 		= "Nope."
 GM.Website 		= "Nope."
 
@@ -400,7 +400,7 @@ function GM:PlayerSpawn(ply)
 		ply.Class = "Engineer"
 		ply:SetDTFloat(1, 20)
 		ply:SetDTFloat(2, 80)
-		ply:SetDTInt(3, nil)
+		ply:SetDTInt(3, 0)
 		ply.ArmorRegenDelay = 0
 		ply:Give("ta_charge")
 		ply:GiveAmmo(1, "slam")
@@ -418,7 +418,7 @@ function GM:PlayerSpawn(ply)
 		ply.Class = "Assault"
 		ply:SetDTFloat(1, 20)
 		ply:SetDTFloat(2, 80)
-		ply:SetDTInt(3, nil)
+		ply:SetDTInt(3, 0)
 		ply.AmmoRegenDelay = 0
 		ply:Give("ta_incendiary_grenade")
 		ply:GiveAmmo(1, "RPG_Round")
@@ -436,7 +436,7 @@ function GM:PlayerSpawn(ply)
 		ply.Class = "Medic"
 		ply:SetDTFloat(1, 100)
 		ply:SetDTFloat(2, 0)
-		ply:SetDTInt(3, nil)
+		ply:SetDTInt(3, 0)
 		ply:Give("ta_ahd") 
 	end
 	
@@ -481,7 +481,7 @@ function GM:PlayerSpawn(ply)
 		ply:ConCommand("ta_teammenu_initial")
 	end
 	
-	ply:SetColor(255, 255, 255, 255)
+	ply:SetColor( Color(255, 255, 255, 255) )
 	ply:SetMaterial("")
 	ply:SetHull(Vector(-16, -16, 0), Vector(16, 16, 72))
 	ply:SetHullDuck(Vector(-16, -16, 0), Vector(16, 16, 36))
@@ -564,7 +564,7 @@ function GM:PlayerSpawn(ply)
 		end
 	end
 	
-	if ValidEntity(VIPEnt) then
+	if IsValid(VIPEnt) then
 		if Team == TEAM_REBELS then
 			umsg.Start("ReportVIP", ply)
 				umsg.Entity(VIPEnt)
@@ -646,9 +646,10 @@ end
 
 function GM:Think()
 	for _, ply in pairs(player.GetAll()) do
+	    if not ply or not ply:IsValid() then continue end
 		if ply:Alive() and ply:Team() != TEAM_SPECTATOR and ply:GetModel() != "models/player.mdl" then
 			
-			ply.DamageSpeedMod = math.Approach(ply.DamageSpeedMod, 1, 0.005)
+			ply.DamageSpeedMod = math.Approach(ply.DamageSpeedMod or 1, 1, 0.005)
 			
 			if ply.Class == "Recon" then
 				if ply.CloakOn then
@@ -666,7 +667,7 @@ function GM:Think()
 							ply:SetMaterial("ta/shader3_custom5")
 						end
 						
-						if ValidEntity(ply:GetActiveWeapon()) then
+						if IsValid(ply:GetActiveWeapon()) then
 							ply:GetActiveWeapon():SetNextPrimaryFire(CurTime() + 0.5)
 						end
 					else
@@ -686,7 +687,7 @@ function GM:Think()
 		end
 		
 		if not ply:Alive() then
-			if CurTime() > ply.SpectateDelay then
+			if ply.SpectateDelay and CurTime() > ply.SpectateDelay then
 				if ply:KeyDown(IN_MOVELEFT) then
 					TA_SpectatePrevious(ply)
 					ply.SpectateDelay = CurTime() + 1
@@ -705,54 +706,55 @@ end
 
 function GM:Tick()
 	for k, v in pairs (player.GetAll()) do
-		if v:Alive() and v:Team() != TEAM_SPECTATOR and v:GetModel() != "models/player.mdl" then
-		
-			if v.Class == "Medic" then
-				if CurTime() > v.MedkitRegenDelay then
+		if v and v:IsValid() and v:Alive() and v:Team() != TEAM_SPECTATOR and v:GetModel() != "models/player.mdl" then
+		    local class = v.Class
+			if class == "Medic" then
+				if v.MedkitRegenDelay and CurTime() > v.MedkitRegenDelay then
 					v:SetDTFloat(1, math.Clamp(v:GetDTFloat(1) + 0.285714, 0, 100))
 					v.MedkitRegenDelay = CurTime() + (0.1 * v.MedkitRegenDelayMul)
 				end
 			else
-				if CurTime() > v.MedkitRegenDelay then
+				if v.MedkitRegenDelay and CurTime() > v.MedkitRegenDelay then
 					v:SetDTFloat(1, math.Clamp(v:GetDTFloat(1) + 0.0444444, 0, 20))
 					v.MedkitRegenDelay = CurTime() + 0.1
 				end
 			end
 			
-			if v.Class == "Engineer" then
-				if CurTime() > v.ArmorRegenDelay then
+			if class == "Engineer" then
+				if v.ArmorRegenDelay and CurTime() > v.ArmorRegenDelay then
 					v:SetDTFloat(2, math.Clamp(v:GetDTFloat(2) + 0.285714, 0, 80))
 					v.ArmorRegenDelay = CurTime() + 0.1
 				end
 			end
 			
-			if v.Class == "Assault" then
-				if CurTime() > v.AmmoRegenDelay then
+			if class == "Assault" then
+				if v.AmmoRegenDelay and CurTime() > v.AmmoRegenDelay then
 					v:SetDTFloat(2, math.Clamp(v:GetDTFloat(2) + 0.285714, 0, 80))
 					v.AmmoRegenDelay = CurTime() + 0.1
 				end
 			end
 			
-			if v:GetActiveWeapon() != NULL then
-				if v:GetActiveWeapon():GetClass():find("^ta_") then
+			if v:GetActiveWeapon() and v:GetActiveWeapon():IsValid() then
+			    local getactiveweapon = v:GetActiveWeapon()
+				if getactiveweapon:GetClass():find("^ta_") then
 					if v:OnGround() then
 						if v:KeyDown(IN_SPEED) and v:GetVelocity():Length() > v:GetWalkSpeed() then
 						
-							if (v:GetActiveWeapon().LastMag == 0 and v:GetActiveWeapon().ShouldBolt == true) or (v:GetActiveWeapon().LastMag != 0 and v:GetActiveWeapon().ShouldBolt == false) then
-						
-								if timer.IsTimer("StartCustomReloadTimer" .. v:Nick()) then
-									timer.Destroy("StartCustomReloadTimer" .. v:Nick())
-									timer.Destroy("StartCustomReloadTimer2" .. v:Nick())
+							if (getactiveweapon.LastMag == 0 and getactiveweapon.ShouldBolt == true) or (getactiveweapon.LastMag != 0 and getactiveweapon.ShouldBolt == false) then
+						        local name = v:Nick()
+								if timer.IsTimer("StartCustomReloadTimer" .. name) then
+									timer.Destroy("StartCustomReloadTimer" .. name)
+									timer.Destroy("StartCustomReloadTimer2" .. name)
 										
-									v:GetActiveWeapon():SendWeaponAnim(v:GetActiveWeapon().IdleAnim or ACT_VM_IDLE)
+									getactiveweapon:SendWeaponAnim(getactiveweapon.IdleAnim or ACT_VM_IDLE)
 										
-									if v:GetActiveWeapon():GetClass() != "test_sniper_awp" then
-										v:GetActiveWeapon():SetNextPrimaryFire(CurTime() + 0.3)
-										v:GetActiveWeapon():SetNextSecondaryFire(CurTime() + 0.3)
+									if getactiveweapon:GetClass() != "test_sniper_awp" then
+										getactiveweapon:SetNextPrimaryFire(CurTime() + 0.3)
+										getactiveweapon:SetNextSecondaryFire(CurTime() + 0.3)
 									end
 										
-									v:GetActiveWeapon().ShouldBolt = false
-									v:GetActiveWeapon().ReloadDelay = CurTime() + 0.3
+									getactiveweapon.ShouldBolt = false
+									getactiveweapon.ReloadDelay = CurTime() + 0.3
 								end
 								
 							end
@@ -786,7 +788,7 @@ function GM:Tick()
 				
 				if v.HasGrabbed then
 				
-					if ValidEntity(v:GetActiveWeapon()) then
+					if IsValid(v:GetActiveWeapon()) then
 						v:GetActiveWeapon():SetDTInt(3, 6)
 						v:GetActiveWeapon():SetNextPrimaryFire(CurTime() + 0.5)
 					end
@@ -872,7 +874,7 @@ function GM:Tick()
 									v.WallRuns = v.WallRuns + 1
 									v.ReturnCheck = false
 									if v.DirType == 1 then
-										if ValidEntity(v:GetActiveWeapon()) then
+										if IsValid(v:GetActiveWeapon()) then
 											v:GetActiveWeapon():SetDTInt(3, 6)
 											v:GetActiveWeapon():SetNextPrimaryFire(CurTime() + 2)
 											
@@ -895,7 +897,7 @@ function GM:Tick()
 						v.CrouchAff = 0
 					end
 					
-					if ValidEntity(v:GetActiveWeapon()) then
+					if IsValid(v:GetActiveWeapon()) then
 						v:GetActiveWeapon():SetNextPrimaryFire(CurTime() + 2)
 						v:GetActiveWeapon().ReloadDelay = CurTime() + 2
 						v.AttachDelay = CurTime() + 2
@@ -1025,7 +1027,7 @@ function SVCLMB_CreateTimer(ply)
 		end
 		
 		if ply:IsValid() then
-			if ValidEntity(ply:GetActiveWeapon()) then
+			if IsValid(ply:GetActiveWeapon()) then
 				//ply:DrawViewModel(true)
 				ply:GetActiveWeapon():SetDTInt(3, 0)
 				ply:GetActiveWeapon():SetNextPrimaryFire(CurTime() + 0.8)
@@ -1086,7 +1088,7 @@ function GM:DoPlayerDeath( ply, attacker, dmginfo )
 		
 	end
 	
-	ply:SetColor(255, 255, 255, 255)
+	ply:SetColor( Color(255, 255, 255, 255) )
 	ply:SetMaterial("")
 	ply:CreateRagdoll()
 	
@@ -1154,7 +1156,7 @@ function GM:PlayerDeath(ply, inflictor, attacker)
 	
 		local owner
 		
-		if ValidEntity(attacker:GetOwner()) then
+		if IsValid(attacker:GetOwner()) then
 			owner = attacker:GetOwner()
 		else
 			owner = attacker.EntOwner
@@ -1187,10 +1189,11 @@ function GM:PlayerDeath(ply, inflictor, attacker)
 			end
 		end
 	end
-	
-	for k, v in pairs(ply.Attackers) do
-		if v.attacker != attacker and attacker != ply and ValidEntity(v.attacker) then
-			TA_AddExperience(v.attacker, 25, 13)
+	if ply.Attackers then
+		for k, v in pairs(ply.Attackers) do
+			if v.attacker and v.attacker != attacker and attacker != ply and IsValid(v.attacker) then
+				TA_AddExperience(v.attacker, 25, 13)
+			end
 		end
 	end
 	
@@ -1210,7 +1213,7 @@ end
 
 function GM:EntityTakeDamage( ent, inflictor, attacker, amount, dmginfo )
 	if not ent:IsPlayer() then
-	//if attacker:IsPlayer() and not ValidEntity(attacker:GetActiveWeapon()) then
+	//if attacker:IsPlayer() and not IsValid(attacker:GetActiveWeapon()) then
 		return
 	end
 
@@ -1318,7 +1321,7 @@ function GM:EntityTakeDamage( ent, inflictor, attacker, amount, dmginfo )
 					
 				local wep = attacker:GetActiveWeapon()
 					
-				if ValidEntity(attacker:GetActiveWeapon()) and attacker:GetActiveWeapon().IsCustomWeapon then
+				if IsValid(attacker:GetActiveWeapon()) and attacker:GetActiveWeapon().IsCustomWeapon then
 					local distance = attacker:GetPos():Distance(ent:GetPos())
 					
 					if ent:IsPlayer() and ent:Armor() > 0 then
@@ -1388,7 +1391,7 @@ function GM:KeyRelease(ply, key)
 				ply.HasGrabbed = false
 				ply.TimeUntilRelease = 0
 				ply.ActionDelay = CurTime() + 0.5
-				if ValidEntity(ply:GetActiveWeapon()) then
+				if IsValid(ply:GetActiveWeapon()) then
 					//ply:DrawViewModel(true)
 					ply:GetActiveWeapon():SetDTInt(3, 0)
 					ply:GetActiveWeapon():SetNextPrimaryFire(CurTime() + 0.8)
@@ -1446,7 +1449,7 @@ function GM:KeyPress(ply, key)
 				ply:SetHull(Vector(-16, -16, 0), Vector(16, 16, 72))
 				ply:SetHullDuck(Vector(-16, -16, 0), Vector(16, 16, 36))
 				ply:SetLocalVelocity(ply:GetForward() * 60 + Vector(0, 0, 250))
-				if ValidEntity(ply:GetActiveWeapon()) then
+				if IsValid(ply:GetActiveWeapon()) then
 					//ply:DrawViewModel(true)
 					ply:GetActiveWeapon():SetDTInt(3, 0)
 					ply:GetActiveWeapon():SetNextPrimaryFire(CurTime() + 0.8)
@@ -1465,7 +1468,7 @@ function GM:KeyPress(ply, key)
 				ply.ReturnCheck = false
 				ply:SetLocalVelocity(Vector(ply:GetAimVector().x * 375, ply:GetAimVector().y * 375, 170))
 				ply:ViewPunch(Angle(-5, 0, 0))
-				if ValidEntity(ply:GetActiveWeapon()) then
+				if IsValid(ply:GetActiveWeapon()) then
 					SVCLMB_CreateTimer(ply)
 				end
 			end
@@ -1517,7 +1520,7 @@ function GM:OnPlayerHitGround(ply)
 				
 				ply.HasDoneARoll = true
 				
-				if ValidEntity(wep) then
+				if IsValid(wep) then
 					wep:SetDTInt(3, 6)
 					wep:SetNextPrimaryFire(CurTime() + 0.65)
 					wep:SetNextSecondaryFire(CurTime() + 0.65)
@@ -1526,7 +1529,7 @@ function GM:OnPlayerHitGround(ply)
 				
 				timer.Simple(0.5, function()
 					if ply:IsValid() then
-						if ValidEntity(wep) then
+						if IsValid(wep) then
 							wep:SetDTInt(3, 0)
 							//ply:DrawViewModel(true)
 						end
@@ -1544,7 +1547,7 @@ function GM:OnPlayerHitGround(ply)
 		end
 		
 		if ply.ShouldAnimate then
-			if ValidEntity(wep) then
+			if IsValid(wep) then
 				//ply:DrawViewModel(true)
 				wep:SetDTInt(3, 0)
 				wep:SetNextPrimaryFire(CurTime() + 0.8)
@@ -1913,7 +1916,7 @@ function TA_GiveLoadout(ply)
 	end
 	
 	timer.Simple(0.1, function()
-		if ply:Team() != TEAM_SPECTATOR and ValidEntity(wep) then
+		if ply:Team() != TEAM_SPECTATOR and IsValid(wep) then
 		
 			local ammotype = tonumber(ply:GetInfo("ta_weapon_primary_ammo"))
 			if ammotype == 2 then
@@ -2409,7 +2412,7 @@ local function TA_UseMedkit(ply)
 	
 	local wep = ply:GetActiveWeapon()
 	
-	if ValidEntity(wep) then
+	if IsValid(wep) then
 		wep:SetNextPrimaryFire(CurTime() + 2)
 		wep:SetNextPrimaryFire(CurTime() + 2)
 		wep:SetDTInt(3, 6)
@@ -2420,7 +2423,7 @@ local function TA_UseMedkit(ply)
 
 	
 	timer.Simple(0.5, function()
-		if not ValidEntity(ply) or not ply:Alive() then
+		if not IsValid(ply) or not ply:Alive() then
 			return
 		end
 		
@@ -2441,11 +2444,11 @@ local function TA_UseMedkit(ply)
 	end)
 	
 	timer.Simple(1.5, function()
-		if not ValidEntity(ply) then
+		if not IsValid(ply) then
 			return
 		end
 		
-		if ValidEntity(wep) then
+		if IsValid(wep) then
 			wep:SetDTInt(3, 0)
 		end
 	end)
@@ -2466,14 +2469,14 @@ local function TA_DoAction(ply)
 				ply:DoAnimationEvent(ACT_ITEM_GIVE)
 				local wep = ply:GetActiveWeapon()
 				
-				if ValidEntity(wep) then
+				if IsValid(wep) then
 					wep:SetDTInt(3, 6)
 				end
 				
 				ply.ActionDelay = CurTime() + 1.5
 				ply:SetFOV(0)
 				
-				if ValidEntity(wep) then
+				if IsValid(wep) then
 					wep:SetNextPrimaryFire(CurTime() + 0.5)
 					wep:SetNextSecondaryFire(CurTime() + 0.5)
 				end
@@ -2495,7 +2498,7 @@ local function TA_DoAction(ply)
 						TA_AddExperience(ply, 25, 0)
 						wep:SetDTInt(3, 0)
 						
-						if ValidEntity(wep) then
+						if IsValid(wep) then
 							wep:SetNextPrimaryFire(CurTime() + 1.5)
 							wep:SetNextSecondaryFire(CurTime() + 1.5)
 						end
@@ -2541,13 +2544,13 @@ local function TA_DoAction(ply)
 				local wep = ply:GetActiveWeapon()
 				ply:DoAnimationEvent(ACT_ITEM_GIVE)
 				
-				if ValidEntity(wep) then
+				if IsValid(wep) then
 					wep:SetDTInt(3, 6)
 				end
 				
 				ply.ActionDelay = CurTime() + 1.5
 				
-				if ValidEntity(wep) then
+				if IsValid(wep) then
 					wep:SetNextPrimaryFire(CurTime() + 1.5)
 					wep:SetNextSecondaryFire(CurTime() + 1.5)
 				end
@@ -2558,13 +2561,13 @@ local function TA_DoAction(ply)
 					if not ply:Alive() then
 						return
 					else
-						if ValidEntity(wep) then
+						if IsValid(wep) then
 							wep:SetDTInt(3, 0)
 						end
 						
 						ply.ActionDelay = CurTime() + 0.5
 						
-						if ValidEntity(wep) then
+						if IsValid(wep) then
 							wep:SetNextPrimaryFire(CurTime() + 0.5)
 							wep:SetNextSecondaryFire(CurTime() + 0.5)
 						end
@@ -2608,13 +2611,13 @@ local function TA_DoAction(ply)
 			
 			local wep = ply:GetActiveWeapon()
 			
-			if ValidEntity(wep) then
+			if IsValid(wep) then
 				wep:SetDTInt(3, 6)
 			end
 			
 			ply.ActionDelay = CurTime() + 1.5
 			
-			if ValidEntity(wep) then
+			if IsValid(wep) then
 				wep:SetNextPrimaryFire(CurTime() + 1.5)
 				wep:SetNextPrimaryFire(CurTime() + 1.5)
 			end
@@ -2628,7 +2631,7 @@ local function TA_DoAction(ply)
 					wep:SetDTInt(3, 0)
 					ply.ActionDelay = CurTime() + 0.5
 					
-					if ValidEntity(wep) then
+					if IsValid(wep) then
 						wep:SetNextPrimaryFire(CurTime() + 0.5)
 						wep:SetNextSecondaryFire(CurTime() + 0.5)
 					end
@@ -2660,7 +2663,7 @@ local function TA_DoAction(ply)
 				wep:SetDTInt(3, 6)
 				ply.ActionDelay = CurTime() + 1.5
 				
-				if ValidEntity(wep) then
+				if IsValid(wep) then
 					wep:SetNextPrimaryFire(CurTime() + 1.5)
 					wep:SetNextSecondaryFire(CurTime() + 1.5)
 				end
@@ -2674,7 +2677,7 @@ local function TA_DoAction(ply)
 						wep:SetDTInt(3, 0)
 						ply.ActionDelay = CurTime() + 0.5
 						
-						if ValidEntity(wep) then
+						if IsValid(wep) then
 							wep:SetNextPrimaryFire(CurTime() + 0.5)
 							wep:SetNextSecondaryFire(CurTime() + 0.5)
 						end
@@ -2734,14 +2737,14 @@ local function TA_DoAction(ply)
 		
 			local wep = ply:GetActiveWeapon()
 			
-			if not ValidEntity(ply) or CurTime() < ply.ActionDelay or not ValidEntity(wep) or ply:GetAmmoCount(wep:GetPrimaryAmmoType()) >= wep.MaxAmmo or ply:GetDTFloat(2) < 20 then
+			if not IsValid(ply) or CurTime() < ply.ActionDelay or not IsValid(wep) or ply:GetAmmoCount(wep:GetPrimaryAmmoType()) >= wep.MaxAmmo or ply:GetDTFloat(2) < 20 then
 				return
 			end
 			
 			wep:SetDTInt(3, 6)
 			ply.ActionDelay = CurTime() + 1.5
 			
-			if ValidEntity(wep) then
+			if IsValid(wep) then
 				wep:SetNextPrimaryFire(CurTime() + 1.5)
 				wep:SetNextSecondaryFire(CurTime() + 1.5)
 			end
@@ -2755,7 +2758,7 @@ local function TA_DoAction(ply)
 					wep:SetDTInt(3, 0)
 					ply.ActionDelay = CurTime() + 0.5
 					
-					if ValidEntity(wep) then
+					if IsValid(wep) then
 						wep:SetNextPrimaryFire(CurTime() + 0.5)
 						wep:SetNextSecondaryFire(CurTime() + 0.5)
 					end
@@ -2803,7 +2806,7 @@ local function TA_DoAction(ply)
 			ply:EmitSound("buttons/button19.wav", 55, 100)
 		end
 		
-		if ValidEntity(wep) then
+		if IsValid(wep) then
 			wep:SetNextPrimaryFire(CurTime() + 0.5)
 			wep:SetNextPrimaryFire(CurTime() + 0.5)
 		end
@@ -3072,7 +3075,7 @@ end
 local function TA_DetonateCharge(ply)
 	local wep = ply:GetActiveWeapon()
 
-	if ValidEntity(wep) and ply:Alive() then
+	if IsValid(wep) and ply:Alive() then
 		if ply.Charge then
 			if ply.Charge.CanExplode and ply.Charge.MotionSensorMode != 1 then
 				ply.Charge:Explode()
@@ -3230,12 +3233,12 @@ function TA_SpectateNext(ply)
 	ply.CurSpectate = ply.CurSpectate + 1
 	
 	if tbl[ply.CurSpectate] then
-		if ValidEntity(tbl[ply.CurSpectate]) then
+		if IsValid(tbl[ply.CurSpectate]) then
 			ply:SpectateEntity(tbl[ply.CurSpectate])
 			ply:Spectate(OBS_MODE_CHASE)
 		end
 	else
-		if ValidEntity(tbl[1]) then
+		if IsValid(tbl[1]) then
 			ply:SpectateEntity(tbl[1])
 			ply:Spectate(OBS_MODE_CHASE)
 			ply.CurSpectate = 1
@@ -3269,12 +3272,12 @@ function TA_SpectatePrevious(ply)
 	ply.CurSpectate = ply.CurSpectate - 1
 	
 	if tbl[ply.CurSpectate] then
-		if ValidEntity(tbl[ply.CurSpectate]) then
+		if IsValid(tbl[ply.CurSpectate]) then
 			ply:SpectateEntity(tbl[ply.CurSpectate])
 			ply:Spectate(OBS_MODE_CHASE)
 		end
 	else
-		if ValidEntity(tbl[1]) then
+		if IsValid(tbl[1]) then
 			ply:SpectateEntity(tbl[1])
 			ply:Spectate(OBS_MODE_CHASE)
 			ply.CurSpectate = 1
@@ -3284,4 +3287,4 @@ function TA_SpectatePrevious(ply)
 	print(ply.CurSpectate)
 end
 
-//concommand.Add("ta_spectateprevious", TA_SpectatePrevious)
+//concommand.Add("ta_spectateprevious", TA_SpectatePrevious) 

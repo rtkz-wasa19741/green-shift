@@ -22,7 +22,6 @@ CreateClientConVar("ta_viewbob_draw", 1, true, true)
 CreateClientConVar("ta_different_origins", 0, true, true)
 CreateClientConVar("ta_aim_sensitivity", 0.01, true, true)
 CreateClientConVar("ta_hold_to_aim", 0, true, true)
-CreateClientConVar("ta_tips", 1, true, true)
 CreateClientConVar("ta_personalattribute", 0, true, true)
 
 local AMs = {
@@ -67,9 +66,6 @@ PLY.Exp = 0
 PLY.Level = 1
 PLY.SkillPoints = 0
 PLY.RequiredExp = 1000
-
-surface.CreateFont("Trebuchet24", 24, 400, true, false, "Trebuchet24Outlined", false, true)
-surface.CreateFont("TitleFont", 12, 400, true, false, "TitleFont12", false, true)
 
 function RegisterPersonalAttribute(name, good, bad, concommandnum)
 	table.insert(personalAttributes, {name = name, good = good, bad = bad, concommandnum = concommandnum})
@@ -199,32 +195,6 @@ function GM:AddNotify( str, type, length )
 	notification.AddLegacy( str, type, length )
 	
 end
-
-local PANEL = {}
-
-function PANEL:Paint()
-    local x, y = self:LocalToScreen( 0, 0 )
-    local w, h = self:GetSize()
-     
-    local sl, st, sr, sb = x, y, x + w, y + h
-     
-    local p = self
-    while p:GetParent() do
-        p = p:GetParent()
-        local pl, pt = p:LocalToScreen( 0, 0 )
-        local pr, pb = pl + p:GetWide(), pt + p:GetTall()
-        sl = sl < pl and pl or sl
-        st = st < pt and pt or st
-        sr = sr > pr and pr or sr
-        sb = sb > pb and pb or sb
-    end
-     
-    render.SetScissorRect( sl, st, sr, sb, true )
-        self.BaseClass.Paint( self )
-    render.SetScissorRect( 0, 0, 0, 0, false )
-end
-
-vgui.Register( "DModelPanel2", PANEL, "DModelPanel" )
 
 local PBAR = {}
  
@@ -430,9 +400,9 @@ vgui.Register("GSSkillTree", SkillTree, "DPanel")
 
 function GM:PostPlayerDraw(ply)
 	if ply:GetDTInt(3) != 0 then
-		ply:SetColor(255, 255, 255, ply:GetDTInt(3))
+		ply:SetColor( Color(255, 255, 255, ply:GetDTInt(3)) )
 	else
-		ply:SetColor(255, 255, 255, 255)
+		ply:SetColor( Color(255, 255, 255, 255) )
 	end
 end
 
@@ -689,6 +659,7 @@ local RedAlpha = 0
 
 function GM:Think()
 	local ply = LocalPlayer()
+	if not ply or not ply:IsValid() then return end
 	local wep = ply:GetActiveWeapon()
 	local vm = ply:GetViewModel()
 	
@@ -803,36 +774,39 @@ function GM:Think()
 	end
 
 	//for k, v in ipairs(player.GetAll()) do
-		if ply.Class == "Recon" and ply:GetDTInt(3) != 0 then
+	    local viewmodel = ply:GetViewModel()
+		if viewmodel then
+			if ply.Class == "Recon" and ply:GetDTInt(3) != 0 then
 		
-			ply:GetViewModel():SetColor(255, 255, 255, ply:GetDTInt(3))
+				ply:GetViewModel():SetColor(255, 255, 255, ply:GetDTInt(3))
 			
-			if ply:GetActiveWeapon().VElements then
-				for k, v in pairs(ply:GetActiveWeapon().VElements) do
-					if v.color.a != 0 and v != ply:GetActiveWeapon().VElements["aimpointdot"] and v != ply:GetActiveWeapon().VElements["eotechdot"] and v != ply:GetActiveWeapon().VElements["acogdot"] then
-						v.color.a = ply:GetDTInt(3)
+				if ply:GetActiveWeapon().VElements then
+					for k, v in pairs(ply:GetActiveWeapon().VElements) do
+						if v.color.a != 0 and v != ply:GetActiveWeapon().VElements["aimpointdot"] and v != ply:GetActiveWeapon().VElements["eotechdot"] and v != ply:GetActiveWeapon().VElements["acogdot"] then
+							v.color.a = ply:GetDTInt(3)
 						
-						if ply:GetDTInt(3) <= 20 then
-							v.material = "ta/shader3_custom5"
-						else
-							if v == ply:GetActiveWeapon().VElements["silencer"] then
-								v.material = "models/bunneh/silencer"
+							if ply:GetDTInt(3) <= 20 then
+								v.material = "ta/shader3_custom5"
 							else
-								v.material = ""
+								if v == ply:GetActiveWeapon().VElements["silencer"] then
+									v.material = "models/bunneh/silencer"
+								else
+									v.material = ""
+								end
 							end
 						end
 					end
 				end
-			end
 			
-			if ply:GetDTInt(3) <= 20 then
-				ply:GetViewModel():SetMaterial("ta/shader3_custom5")
+				if ply:GetDTInt(3) <= 20 then
+					viewmodel:SetMaterial("ta/shader3_custom5")
+				else
+					viewmodel:SetMaterial("")
+				end
 			else
-				ply:GetViewModel():SetMaterial("")
+				viewmodel:SetColor( Color(255, 255, 255, 255) )
+				viewmodel:SetMaterial("")
 			end
-		else
-			ply:GetViewModel():SetColor(255, 255, 255, 255)
-			ply:GetViewModel():SetMaterial("")
 		end
 		
 		for k, v in pairs(player.GetAll()) do
@@ -857,38 +831,6 @@ function GM:Think()
 			end
 		end
 	//end
-	
-	if GetConVarNumber("ta_tips") > 0 then
-		if ply:KeyDown(IN_SPEED) and ply:GetVelocity():Length() >= ply:GetRunSpeed() * 0.9 and CurTime() > Help_WallRunDelay then
-			TA_HelpMeWithWallRun()
-		end
-		
-		if ply:GetMoveType() == MOVETYPE_NONE and CurTime() > Help_PullSelfUpDelay then
-			TA_HelpMeWithPullSelfUp()
-		end
-		
-		if not ply:OnGround() and ply:GetVelocity().z <= -500 and CurTime() > Help_RollDelay then
-			TA_HelpMeWithRolls()
-		end
-		
-		if CurTime() > Help_Health and ply:Health() < 40 then
-			TA_HelpMeWithHealth()
-		end
-		
-		if CurTime() > Help_Actions and ply:Alive() then
-			TA_HelpMeWithActions()
-		end
-		
-		local wep = ply:GetActiveWeapon()
-		
-		if CurTime() > Help_M203 then
-			if ValidEntity(wep) then
-				if wep.VElements and wep.VElements["grenadelauncher"] and wep.VElements["grenadelauncher"].color.a == 255 then
-					TA_HelpMeWithM203()
-				end
-			end
-		end
-	end
 	
 	if GetConVarNumber("mat_motion_blur_enabled") < 1 then
 		RunConsoleCommand("mat_motion_blur_enabled", "1")
@@ -959,13 +901,6 @@ function TA_HelpMenu()
 	Option10:SetValue(GetConVarNumber("ta_hold_to_aim"))
 	Option10:SizeToContents()
 	PanelList:AddItem(Option10)
-	
-	local Option11 = vgui.Create("DCheckBoxLabel")
-	Option11:SetText("MISC: Provide tips?")
-	Option11:SetConVar("ta_tips")
-	Option11:SetValue(GetConVarNumber("ta_tips"))
-	Option11:SizeToContents()
-	PanelList:AddItem(Option11)
 		
 	local Option3 = vgui.Create("DCheckBoxLabel")
 	Option3:SetText("EFFECT: Use gunfire heat effect?")
@@ -1200,7 +1135,7 @@ The only way to re-align them, is to press the "Reset All" button and re-start f
 		if Trees then
 			print("dick")
 			for k, v in pairs(Trees) do
-				if ValidEntity(v.TreeTable) then
+				if IsValid(v.TreeTable) then
 					v.TreeTable.Unlocked = false
 				end
 			end
@@ -1268,7 +1203,7 @@ The only way to re-align them, is to press the "Reset All" button and re-start f
 		FakeWeaponList:SetSize(500, 300)
 		
 		for k, v in ipairs(lsmgs) do
-			local weaponmodel = vgui.Create("DModelPanel2", FakeWeaponList)
+			local weaponmodel = vgui.Create("DModelPanel", FakeWeaponList)
 			weaponmodel:SetModel(v.model)
 			weaponmodel:SetPos(5, v.ypos + 5)
 			weaponmodel:SetSize(128, 64)
@@ -1380,7 +1315,7 @@ The only way to re-align them, is to press the "Reset All" button and re-start f
 			FakeWeaponList:SetSize(500, 300)
 			
 			for k, v in ipairs(shotguns) do
-				local weaponmodel = vgui.Create("DModelPanel2", FakeWeaponList)
+				local weaponmodel = vgui.Create("DModelPanel", FakeWeaponList)
 				weaponmodel:SetModel(v.model)
 				weaponmodel:SetPos(5, v.ypos + 5)
 				weaponmodel:SetSize(128, 64)
@@ -1494,7 +1429,7 @@ The only way to re-align them, is to press the "Reset All" button and re-start f
 		FakeWeaponList:SetSize(500, 300)
 			
 		for k, v in ipairs(smgs) do
-			local weaponmodel = vgui.Create("DModelPanel2", FakeWeaponList)
+			local weaponmodel = vgui.Create("DModelPanel", FakeWeaponList)
 			weaponmodel:SetModel(v.model)
 			weaponmodel:SetPos(5, v.ypos + 5)
 			weaponmodel:SetSize(128, 64)
@@ -1607,7 +1542,7 @@ The only way to re-align them, is to press the "Reset All" button and re-start f
 		FakeWeaponList:SetSize(500, 630)
 		
 		for k, v in ipairs(secweapons) do
-				local weaponmodel = vgui.Create("DModelPanel2", FakeWeaponList)
+				local weaponmodel = vgui.Create("DModelPanel", FakeWeaponList)
 				weaponmodel:SetModel(v.model)
 				weaponmodel:SetPos(5, v.ypos + 5)
 				weaponmodel:SetSize(128, 64)
@@ -1752,7 +1687,7 @@ The only way to re-align them, is to press the "Reset All" button and re-start f
 		for k, v in ipairs(secattachments) do
 			local Allowed = false
 		
-			local attachmenticon = vgui.Create("DModelPanel2", FakeAttachmentList)
+			local attachmenticon = vgui.Create("DModelPanel", FakeAttachmentList)
 			attachmenticon:SetModel(v.model)
 			attachmenticon:SetPos(5, v.ypos + 70)
 			attachmenticon:SetSize(128, 64)
@@ -1835,7 +1770,7 @@ The only way to re-align them, is to press the "Reset All" button and re-start f
 			FakeWeaponList:SetSize(500, 990)
 			
 			for k, v in ipairs(ars) do
-				local weaponmodel = vgui.Create("DModelPanel2", FakeWeaponList)
+				local weaponmodel = vgui.Create("DModelPanel", FakeWeaponList)
 				weaponmodel:SetModel(v.model)
 				weaponmodel:SetPos(5, v.ypos + 5)
 				weaponmodel:SetSize(128, 64)
@@ -1948,7 +1883,7 @@ The only way to re-align them, is to press the "Reset All" button and re-start f
 			FakeWeaponList:SetSize(500, 200)
 			
 			for k, v in ipairs(lmgs) do
-				local weaponmodel = vgui.Create("DModelPanel2", FakeWeaponList)
+				local weaponmodel = vgui.Create("DModelPanel", FakeWeaponList)
 				weaponmodel:SetModel(v.model)
 				weaponmodel:SetPos(5, v.ypos + 5)
 				weaponmodel:SetSize(128, 64)
@@ -2063,7 +1998,7 @@ The only way to re-align them, is to press the "Reset All" button and re-start f
 			FakeWeaponList:SetSize(500, 300)
 			
 			for k, v in ipairs(brs) do
-				local weaponmodel = vgui.Create("DModelPanel2", FakeWeaponList)
+				local weaponmodel = vgui.Create("DModelPanel", FakeWeaponList)
 				weaponmodel:SetModel(v.model)
 				weaponmodel:SetPos(5, v.ypos + 5)
 				weaponmodel:SetSize(128, 64)
@@ -2179,7 +2114,7 @@ The only way to re-align them, is to press the "Reset All" button and re-start f
 		for k, v in ipairs(ammotypes) do
 			local AllowedAmmo = false
 			
-			local ammomodel = vgui.Create("DModelPanel2", FakeAmmoList)
+			local ammomodel = vgui.Create("DModelPanel", FakeAmmoList)
 			ammomodel:SetModel("models/Items/BoxMRounds.mdl")
 			ammomodel:SetPos(5, v.ypos + 5)
 			ammomodel:SetSize(64, 64)
@@ -2325,7 +2260,7 @@ The only way to re-align them, is to press the "Reset All" button and re-start f
 		for k, v in ipairs(attachments) do
 			local Allowed = false
 		
-			local attachmenticon = vgui.Create("DModelPanel2", FakeAttachmentList)
+			local attachmenticon = vgui.Create("DModelPanel", FakeAttachmentList)
 			attachmenticon:SetModel(v.model)
 			attachmenticon:SetPos(5, v.ypos + 70)
 			attachmenticon:SetSize(128, 64)
@@ -2463,10 +2398,10 @@ The only way to re-align them, is to press the "Reset All" button and re-start f
 		<br>
 		I hope this manual was of use to you, have a nice game!]])
 	
-	PropertySheet:AddSheet( "Help", Text, "gui/silkicons/page", false, false, "Don't know how to play? Click here!" )
-	PropertySheet:AddSheet( "Personal Attributes", PAList, "gui/silkicons/user", false, false, "Pick one personal attribute here." )
-	PropertySheet:AddSheet( "Levels and Unlockables", UNList, "gui/silkicons/plugin", false, false, "Check your progress on unlockables here." )
-	PropertySheet:AddSheet( "Options", PanelList, "gui/silkicons/wrench", false, false, "Tune everything to your own liking here." )
+	PropertySheet:AddSheet( "Help", Text, "icon16/page.png", false, false, "Don't know how to play? Click here!" )
+	PropertySheet:AddSheet( "Personal Attributes", PAList, "icon16/user.png", false, false, "Pick one personal attribute here." )
+	PropertySheet:AddSheet( "Levels and Unlockables", UNList, "icon16/plugin.png", false, false, "Check your progress on unlockables here." )
+	PropertySheet:AddSheet( "Options", PanelList, "icon16/wrench.png", false, false, "Tune everything to your own liking here." )
 end
 
 concommand.Add("ta_helpmenu", TA_HelpMenu)
@@ -2617,13 +2552,8 @@ function GM:HUDPaint()
 			draw.SimpleText("Upload:   " .. GetGlobalInt("n2data") .. "%", "DefaultFixedOutline", 30, 38, Color(255, 255, 255, 255))
 		end
 	
-		if ply.MaxHealth then
-			Smooth_healthdisplay = math.Clamp(math.Approach(Smooth_healthdisplay, ply:Health() / ply.MaxHealth * 176, 2), 0, 176)
-		end
-
-		if ply.MaxArmor then
-			Smooth_energydisplay = math.Clamp(math.Approach(Smooth_energydisplay, ply:Armor() / ply.MaxArmor * 176, 2), 0, 176)
-		end
+		Smooth_healthdisplay = math.Clamp(math.Approach(Smooth_healthdisplay, ply:Health() / ply:GetMaxHealth() * 176, 2), 0, 176)
+		Smooth_energydisplay = math.Clamp(math.Approach(Smooth_energydisplay, ply:Armor() / ply:GetMaxArmor() * 176, 2), 0, 176)
 
 		surface.SetDrawColor(255, 255, 255, 255)
 		surface.SetTexture(HUD_MainFrame)
@@ -2642,14 +2572,16 @@ function GM:HUDPaint()
 		end
 		
 		surface.DrawTexturedRect(67, Height * 0.8 + 7, 64, 64)
-			
-		surface.SetDrawColor(115, 219, 81, 255)
-		surface.SetTexture(HUD_Bar)
-		surface.DrawTexturedRectUV(138, Height * 0.8 + 16, Smooth_healthdisplay, 9, 176, 9)
-		
-		surface.SetDrawColor(12, 198, 255, 255)
-		surface.SetTexture(HUD_Bar)
-		surface.DrawTexturedRectUV(138, Height * 0.8 + 53, Smooth_energydisplay, 9, 176, 9)
+		if Smooth_healthdisplay then
+			surface.SetDrawColor(115, 219, 81, 255)
+			surface.SetTexture(HUD_Bar)
+			surface.DrawTexturedRect(138, Height * 0.8 + 16, Smooth_healthdisplay, 9)
+        end
+		if Smooth_energydisplay then
+			surface.SetDrawColor(12, 198, 255, 255)
+			surface.SetTexture(HUD_Bar)
+			surface.DrawTexturedRect(138, Height * 0.8 + 53, Smooth_energydisplay, 9)
+		end
 				
 		local struc = {}
 		struc["pos"] = {145, Height * 0.8}
@@ -2674,7 +2606,7 @@ function GM:HUDPaint()
 		//draw.SimpleText("Health: " .. ply:Health() .. "%", "DefaultSmall", 124, Height * 0.8 + 15, Color(255, 255, 255, 255))
 		//draw.SimpleText("Armor: " .. ply:Armor() .. "%", "DefaultSmall", 124, Height * 0.8 + 52, Color(255, 255, 255, 255))
 		
-		if ValidEntity(wep) and wep:GetClass():find("^ta_") and wep.Primary.ClipSize then
+		if IsValid(wep) and wep:GetClass():find("^ta_") and wep.Primary.ClipSize then
 			//draw.SimpleText(ply:GetAmmoCount(wep.Primary.ClipSize), "HudHintTextLarge", 150, Height * 0.8 + 37, Color(255, 255, 255, 255), TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
 			local struc = {}
 			struc["pos"] = {180, Height * 0.8 + 31}
@@ -2858,7 +2790,7 @@ function GM:HUDPaint()
 					end
 					
 					if ply.Class == "Assault" then
-						if ValidEntity(v:GetActiveWeapon()) then
+						if IsValid(v:GetActiveWeapon()) then
 							if v:GetActiveWeapon().MaxAmmo then
 								local alpha = v:GetAmmoCount(v:GetActiveWeapon():GetPrimaryAmmoType()) / (v:GetActiveWeapon().MaxAmmo / 100)
 								surface.SetDrawColor(255, 255, 255, 255 - alpha * 2.55)
@@ -3049,7 +2981,8 @@ local YT = 0 -- yaw target
 local RT = 0 -- roll target
 local PT2 = 0
 local RT2 = 0
-
+_R = {}
+_R.Player = {}
 -- Thanks to Kogitsune for this!
 function _R.Player:SpinTo( deg, time )
 	self.__spin_deg = deg
@@ -3118,7 +3051,7 @@ local function TA_ViewShake(ply, pos, angles, fov)
 	local CurrentTime = CurTime()
 	local wep = ply:GetActiveWeapon()
 	
-	if ply:OnGround() and ValidEntity(wep) and wep:GetClass():find("^ta_") then
+	if ply:OnGround() and IsValid(wep) and wep:GetClass():find("^ta_") then
 		if ply:KeyDown(IN_SPEED) and ply:GetVelocity():Length() > ply:GetWalkSpeed() then
 			PAPR = 0.5
 			YAPR = 0.5
@@ -3184,7 +3117,7 @@ local function TA_ViewShake(ply, pos, angles, fov)
 	
 	local wep = wep
 	
-	if ValidEntity(wep) then
+	if IsValid(wep) then
 		if wep:GetClass():find("^ta_") then
 			local vm = ply:GetViewModel()
 			local eyeang = ply:EyeAngles()
@@ -3245,7 +3178,7 @@ local function TA_ViewShake(ply, pos, angles, fov)
 	view.origin = pos
 	view.fov = fov
 	
-	if ( ValidEntity( wep ) ) then
+	if ( IsValid( wep ) ) then
 	
 		local func = wep.GetViewModelPosition
 		if ( func ) then
@@ -3561,6 +3494,7 @@ end
 usermessage.Hook("C4HELP", TA_HelpMeWithCharge)
 
 function TA_HelpMeWithWallRun()
+    if Help_WallRunDelay > CurTime() then return end
 	GAMEMODE:AddNotify("Walk up to a wall and hold down your JUMP KEY to wall-run.", NOTIFY_HINT, 6)
 	chat.AddText(Color(255, 255, 255), "Walk up to a wall and hold down your ", Color(74, 175, 255), "JUMP KEY ", Color(255, 255, 255), "to wall-run.")
 	surface.PlaySound("buttons/button9.wav")
@@ -3575,6 +3509,7 @@ function TA_HelpMeWithWallRun()
 end
 
 function TA_HelpMeWithPullSelfUp()
+    if Help_PullSelfUpDelay > CurTime() then return end
 	timer.Simple(0.5, function()
 		GAMEMODE:AddNotify("While grabbed on to a ledge, press your JUMP KEY to pull yourself up.", NOTIFY_HINT, 6)
 		chat.AddText(Color(255, 255, 255), "While grabbed on to a ledge, press your ", Color(74, 175, 255), "JUMP KEY ", Color(255, 255, 255), "to pull yourself up.")
@@ -3591,6 +3526,7 @@ function TA_HelpMeWithPullSelfUp()
 end
 
 function TA_HelpMeWithRolls()
+    if Help_RollDelay > CurTime() then return end
 	GAMEMODE:AddNotify("While falling down from a lethal height, LOOK DOWN and hold down your CROUCH KEY to do a roll.", NOTIFY_HINT, 6)
 	chat.AddText(Color(255, 255, 255), "While falling down from a lethal height, ", Color(74, 175, 255), "LOOK DOWN ", Color(255, 255, 255), "and hold down your ", Color(74, 175, 255), "CROUCH KEY ", Color(255, 255, 255), "to do a roll.")
 	surface.PlaySound("buttons/button9.wav")
@@ -3599,6 +3535,7 @@ function TA_HelpMeWithRolls()
 end
 
 function TA_HelpMeWithHealth()
+    if Help_Health > CurTime() then return end
 	GAMEMODE:AddNotify("When you're low on health, press your Spawn Menu key (Yours - " .. QMenuKey .. ") to use your medkit.", NOTIFY_HINT, 6)
 	chat.AddText(Color(255, 255, 255), "When you're low on health, press your ", Color(74, 175, 255), "Spawn Menu key (Yours - " .. QMenuKey .. ")", Color(255, 255, 255), " to use your medkit")
 	surface.PlaySound("buttons/button9.wav")
@@ -3607,6 +3544,7 @@ function TA_HelpMeWithHealth()
 end
 
 function TA_HelpMeWithActions()
+    if Help_Actions < CurTime() then return end
 	GAMEMODE:AddNotify("Press your Context Menu key (Yours - " .. CMenuKey .. ") to perform a class-based action.", NOTIFY_HINT, 6)
 	chat.AddText(Color(255, 255, 255), "Press your ", Color(74, 175, 255), "Context Menu key (Yours - " .. CMenuKey .. ")", Color(255, 255, 255), " to perform a class-based action.")
 	surface.PlaySound("buttons/button9.wav")
@@ -3615,6 +3553,7 @@ function TA_HelpMeWithActions()
 end
 
 function TA_HelpMeWithM203()
+    if Help_M203 > CurTime() then return end
 	GAMEMODE:AddNotify("To use M203, press your USE KEY and your PRIMARY ATTACK KEY at the same time. After that, aim down the sights and fire.", NOTIFY_HINT, 7)
 	chat.AddText(Color(255, 255, 255), "To use M203, press your ", Color(75, 175, 255), "USE KEY", Color(255, 255, 255), " and your ", Color(75, 175, 255), "PRIMARY ATTACK KEY", Color(255, 255, 255), "at the same time. After that, ", Color(75, 175, 255), "aim down the sights and fire.")
 	surface.PlaySound("buttons/button9.wav")
@@ -3629,7 +3568,7 @@ local function TA_ReceiveUnlockable(um)
 	
 	ply.SkillPoints = SkillPoints
 	
-	if ValidEntity(SkillPoint) then
+	if IsValid(SkillPoint) then
 		SkillPoint:SetText("Skill points: " .. ply.SkillPoints)
 	end
 	
@@ -3637,7 +3576,7 @@ local function TA_ReceiveUnlockable(um)
 		if UN == v.number then
 			v.unlocked = true
 			
-			if ValidEntity(LastPressedSkillTree) then
+			if IsValid(LastPressedSkillTree) then
 				LastPressedSkillTree.Unlocked = true
 			end
 			
